@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+  # ====================================================================================================================
+  # POSTGRES SERVER
+  # ====================================================================================================================
+  postgres:
+    image: postgres:14-alpine
+    container_name: dev-postgresql
+    environment:
+      POSTGRES_DB: apidelivros
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.data/postgresql/data:/var/lib/postgresql/data
+    networks:
+      - dev-network
+
+  # ====================================================================================================================
+  # PGADMIN
+  # ====================================================================================================================
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: dev-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - ./.data/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - dev-network
+
+  # ====================================================================================================================
+  # API SPRING BOOT
+  # ====================================================================================================================
+  api-delivros:
+    build: .
+    container_name: api-delivros
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/apidelivros
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - dev-network
+
+# ======================================================================================================================
+# REDE
+# ======================================================================================================================
+networks:
+  dev-network:
+    driver: bridge
