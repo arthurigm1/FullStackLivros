@@ -10,6 +10,7 @@ import projetolivros.livros.Model.Autor;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.AutorRepository;
 import projetolivros.livros.Repository.LivroRepository;
+import projetolivros.livros.Security.SecurityService;
 import projetolivros.livros.Validador.AutorValidador;
 
 import java.util.List;
@@ -22,8 +23,9 @@ public class AutorService {
 
     private  final AutorRepository autorRepository;
     private final AutorValidador autorValidador;
-
+    private final SecurityService securityService;
     private final LivroRepository livroRepository;
+
 
 
     public Autor save(Autor autor)

@@ -14,6 +14,8 @@ import projetolivros.livros.Model.Livro;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.LivroRepository;
 import projetolivros.livros.Repository.UsuarioRepository;
+import projetolivros.livros.Security.SecurityService;
+import projetolivros.livros.Security.TokenService;
 import projetolivros.livros.Validador.LivroValidador;
 
 import java.util.Optional;
@@ -27,19 +29,12 @@ public class LivroService {
 
     private final LivroRepository livroRepository;
     private final LivroValidador livroValidador;
-    private final UsuarioRepository usuarioRepository;
+    private final SecurityService securityService;
 
     public Livro salvar(Livro livro) {
         livroValidador.validar(livro);
-        // Recupera o usuário autenticado do contexto de segurança
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String emailUsuario = userDetails.getUsername(); // ou algum outro dado, dependendo de como seu usuário está estruturado
-
-        // Encontre o usuário no banco de dados
-        Usuario usuario = usuarioRepository.findByEmail(emailUsuario)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-
-        livro.setIdusuario(usuario);  // Definindo o usuário associado ao livro
+        Usuario usuario = securityService.obterUsuarioLogado();
+        livro.setUsuario(usuario);
         return livroRepository.save(livro);
     }
 

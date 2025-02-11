@@ -25,7 +25,7 @@ public class UsuarioValidador {
     }
 
     private boolean existeuser(Usuario usuario) {
-        Optional<Usuario> usuario1 = usuarioRepository.findById(UUID.fromString(usuario.getId()));
+        Optional<Usuario> usuario1 = usuarioRepository.findById(usuario.getId());
 
         if (usuario1.isPresent()) {
             return true;

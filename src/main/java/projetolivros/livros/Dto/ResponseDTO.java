@@ -1,3 +1,5 @@
 package projetolivros.livros.Dto;
 
-public record ResponseDTO (String name, String token,String id) { }
+import java.util.UUID;
+
+public record ResponseDTO (String name, String token, UUID id) { }
