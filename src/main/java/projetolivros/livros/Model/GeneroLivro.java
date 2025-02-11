@@ -1,5 +1,9 @@
 package projetolivros.livros.Model;
 
+
+import lombok.ToString;
+
+@ToString
 public enum GeneroLivro {
     FICCAO,
     NAO_FICCAO,

@@ -30,6 +30,8 @@ public class AutorService {
 
     public Autor save(Autor autor)
     {
+        Usuario usuario = securityService.obterUsuarioLogado();
+        autor.setIdusuario(usuario);
         autorValidador.validar(autor);
         return autorRepository.save(autor);
     }

@@ -1,6 +1,7 @@
 package projetolivros.livros.Exceptions;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -59,5 +60,10 @@ public class GlobalExceptionHandler {
     return new ErroResposta(
             HttpStatus.UNPROCESSABLE_ENTITY.value()
             ,"Erro de validacao",List.of(new ErroCampo(campoInvalido.getCampo(),campoInvalido.getMessage())));
+    }
+    @ExceptionHandler(CarrinhoNaoEncontradoException.class)
+    public ResponseEntity<ErroResposta> handleCarrinhoNaoEncontrado(CarrinhoNaoEncontradoException ex) {
+        ErroResposta erroResposta = ErroResposta.respostaPadrao(ex.getMessage());
+        return ResponseEntity.status(erroResposta.status()).body(erroResposta);
     }
 }

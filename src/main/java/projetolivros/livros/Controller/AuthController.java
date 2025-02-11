@@ -1,6 +1,7 @@
 package projetolivros.livros.Controller;
 
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,31 +29,40 @@ public class AuthController {
     private final UsuarioMapper usuarioMapper;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody LoginRequestDTO body){
+    public ResponseEntity login(@RequestBody @Valid LoginRequestDTO body) {
         Usuario user = this.repository.findByEmail(body.email());
-        if(user == null){
+        if (user == null) {
             throw new RuntimeException("User not found");
         }
-        if(passwordEncoder.matches(body.senha(), user.getSenha())) {
+        if (passwordEncoder.matches(body.senha(), user.getSenha())) {
             String token = this.tokenService.generateToken(user);
-            return ResponseEntity.ok(new ResponseDTO(user.getEmail(), token,user.getId()));
+            return ResponseEntity.ok(new ResponseDTO(user.getEmail(), token, user.getId()));
         }
         return ResponseEntity.badRequest().build();
     }
 
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterRequestDTO body){
+    public ResponseEntity<ResponseDTO> register(@RequestBody @Valid RegisterRequestDTO body) {
+        // Verifica se o usuário já existe
         Usuario user = this.repository.findByEmail(body.email());
-
-        if(user == null) {
-
+        // Se o usuário não existir, cria um novo
+        if (user == null) {
             Usuario newUser = usuarioMapper.toEntity(body);
-            newUser.setSenha(passwordEncoder.encode(body.senha()));
+            newUser.setSenha(passwordEncoder.encode(body.senha()));  // Codificando a senha
+
+            // Salva o novo usuário
             this.repository.save(newUser);
+
+            // Gera o token de autenticação
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getEmail(), token,newUser.getId()));
+
+            // Retorna a resposta com os dados do novo usuário
+            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token, newUser.getId()));
         }
-        return ResponseEntity.badRequest().build();
+
+        // Retorna resposta de erro, caso o usuário já exista
+        return ResponseEntity.badRequest().body(new ResponseDTO("Erro", "Email já cadastrado", null));
     }
 }
+

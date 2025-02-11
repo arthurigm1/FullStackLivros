@@ -4,8 +4,10 @@ package projetolivros.livros.Model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -14,11 +16,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "livro")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString(exclude = "autor")
 @EntityListeners(AuditingEntityListener.class)
 public class Livro {
@@ -39,6 +44,8 @@ public class Livro {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "genero", length = 30, nullable = false)
+    @NotNull
+    @NotBlank
     private GeneroLivro genero;
 
     @Column(name = "preco", precision = 18, scale = 2)
@@ -63,6 +70,8 @@ public class Livro {
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
-
     private Usuario usuario;
+
+    @OneToMany(mappedBy = "livro")  // Relacionamento de um livro com vários carrinhos
+    private List<LivroCarrinho> livrosCarrinho;
 }

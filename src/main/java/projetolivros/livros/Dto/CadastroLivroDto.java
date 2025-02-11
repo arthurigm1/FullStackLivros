@@ -16,7 +16,7 @@ public record CadastroLivroDto(@NotBlank(message = "campo obrigatorio!")
                                String isbn,
                                @NotBlank(message = "campo obrigatorio!")
                                String titulo,
-                               @NotNull(message = "campo obrigatorio!")
+
                                @Past(message = "nao pode ser uma data futura")
                                LocalDate dataPublicacao,
                                BigDecimal preco,

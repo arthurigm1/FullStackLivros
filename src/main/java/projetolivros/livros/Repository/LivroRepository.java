@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import projetolivros.livros.Model.Autor;
 import projetolivros.livros.Model.GeneroLivro;
 import projetolivros.livros.Model.Livro;
@@ -21,6 +22,7 @@ import java.util.UUID;
 /**
  * @see LivroRepositoryTest
  */
+@Repository
 public interface LivroRepository extends JpaRepository<Livro, UUID>, JpaSpecificationExecutor<Livro> {
 
     Page<Livro> findByAutor(Autor autor, Pageable pageable);

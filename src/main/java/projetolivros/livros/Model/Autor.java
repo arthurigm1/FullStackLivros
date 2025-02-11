@@ -49,4 +49,8 @@ public class Autor {
     @Column(name = "data_atualizacao")
     private LocalDateTime dataAtualizacao;
 
+    @ManyToOne()
+    @JoinColumn(name = "id_usuario")
+    private Usuario idusuario;
+
 }

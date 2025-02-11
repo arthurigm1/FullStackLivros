@@ -18,6 +18,7 @@ import projetolivros.livros.Security.SecurityService;
 import projetolivros.livros.Security.TokenService;
 import projetolivros.livros.Validador.LivroValidador;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,42 +46,34 @@ public class LivroService {
         livroRepository.delete(livro);
     }
 
-    public Page<Livro> pesquisaporFiltro(
+    public List<Livro> pesquisaporFiltro(
             String isbn,
             GeneroLivro generoLivro,
             Integer anoPublicacao,
             String titulo,
-            String nomeAutor,
-            Integer pagina,
-            Integer tamanhoPagina) {
+            String nomeAutor) {
 
-        /*Specification<Livro> specs =
-                Specification
-                        .where(LivroSpecs.isbnEqual(isbn)
-                                .and(LivroSpecs.generoEqual(generoLivro)
-                                        .and(LivroSpecs.tituloLike(titulo))));*/
+        Specification<Livro> specs = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
 
-    Specification<Livro> specs = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
-    if (isbn != null) {
-        //query = query and isbn =:isbn
-        specs = specs.and(isbnEqual(isbn));
-    }
-    if (generoLivro != null) {
-        specs = specs.and(generoEqual(generoLivro));
-    }
-    if (titulo != null) {
-        specs = specs.and(tituloLike(titulo));
-    }
-    if(anoPublicacao != null) {
-        specs = specs.and(anoPulicacaoAno(anoPublicacao));
-    }
-    if(nomeAutor != null) {
-        specs = specs.and(nomeAutorLike(nomeAutor));
-    }
-        Pageable pageRequest = PageRequest.of(pagina, tamanhoPagina);
+        if (isbn != null) {
+            specs = specs.and(isbnEqual(isbn));
+        }
+        if (generoLivro != null) {
+            specs = specs.and(generoEqual(generoLivro));
+        }
+        if (titulo != null) {
+            specs = specs.and(tituloLike(titulo));
+        }
+        if (anoPublicacao != null) {
+            specs = specs.and(anoPulicacaoAno(anoPublicacao));
+        }
+        if (nomeAutor != null) {
+            specs = specs.and(nomeAutorLike(nomeAutor));
+        }
 
-        return  livroRepository.findAll(specs,pageRequest);
+        return livroRepository.findAll(specs);
     }
+
 
     public void atualizar( Livro livro) {
         if(livro.getId() == null){
