@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Controller.Mapper.CarrinhoMapper;
 import projetolivros.livros.Controller.Mapper.LivroMapper;
+import projetolivros.livros.Dto.LivroCarrinhoDto;
 import projetolivros.livros.Dto.LivroCarrinhoRequestdto;
 import projetolivros.livros.Model.Carrinho;
 import projetolivros.livros.Model.LivroCarrinho;
@@ -37,8 +38,8 @@ public class CarrinhoController {
     }
 
 
-    @GetMapping("")
-    public ResponseEntity<List<LivroCarrinho>> listarItens() {
+    @GetMapping
+    public ResponseEntity<List<LivroCarrinhoDto>> listarItens() {
         return ResponseEntity.ok(carrinhoService.listarItensDoCarrinho());
     }
 

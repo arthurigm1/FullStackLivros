@@ -1,6 +1,7 @@
 package projetolivros.livros.Model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.apache.catalina.User;
@@ -25,6 +26,7 @@ public class Carrinho {
     private UUID usuarioId;
 
     @OneToMany(mappedBy = "carrinho")
+    @JsonManagedReference
     private List<LivroCarrinho> items = new ArrayList<>();
 
 }

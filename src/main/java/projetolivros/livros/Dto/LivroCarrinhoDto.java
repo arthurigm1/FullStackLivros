@@ -8,18 +8,20 @@ import projetolivros.livros.Model.LivroCarrinho;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class LivroCarrinhoDto {
-    private Long productId;
-    private String image;
-    private String name;
-    private String price;
-    private Integer quantity;
-    public String getSubTotal() {
-        return String.valueOf(BigDecimal.valueOf(Double.parseDouble(price.replace(",", "."))).multiply(BigDecimal.valueOf(quantity)).setScale(2, RoundingMode.HALF_UP)).replace(".", ",");
+    private UUID livroId;
+    private String titulo;
+    private BigDecimal preco;
+    private Integer quantidade;
+
+    public LivroCarrinhoDto(LivroCarrinho livroCarrinho) {
     }
+
+
 }

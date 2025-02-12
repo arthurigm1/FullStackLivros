@@ -1,7 +1,9 @@
 package projetolivros.livros.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.math.BigDecimal;
 
@@ -20,6 +22,8 @@ public class LivroCarrinho {
     @ManyToOne
     @MapsId("carrinhoId")
     @JoinColumn(name = "carrinho_id", insertable = false, updatable = false)
+    @JsonIgnore
+    @JsonBackReference
     private Carrinho carrinho;
 
     @ManyToOne

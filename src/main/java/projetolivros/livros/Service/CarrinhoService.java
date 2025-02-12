@@ -3,6 +3,7 @@ package projetolivros.livros.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import projetolivros.livros.Dto.LivroCarrinhoDto;
 import projetolivros.livros.Dto.LivroCarrinhoRequestdto;
 import projetolivros.livros.Exceptions.CarrinhoNaoEncontradoException;
 import projetolivros.livros.Model.*;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -81,15 +83,24 @@ public class CarrinhoService {
 
 
 
-    public List<LivroCarrinho> listarItensDoCarrinho() {
-        // Obtém o usuário logado e o seu carrinho
+    public List<LivroCarrinhoDto> listarItensDoCarrinho() {
         Usuario usuario = securityService.obterUsuarioLogado();
+
         Carrinho carrinho = carrinhoRepository.findByUsuarioId(usuario.getId())
                 .orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
 
-        // Retorna a lista de itens no carrinho
-        return livroCarrinhoRepository.findByCarrinhoId(carrinho.getId());
+        return livroCarrinhoRepository.findByCarrinhoId(carrinho.getId())
+                .stream()
+                .map(livroCarrinho -> new LivroCarrinhoDto(
+                        livroCarrinho.getLivro().getId(),
+                        livroCarrinho.getLivro().getTitulo(),
+                        livroCarrinho.getPreco(),
+                        livroCarrinho.getQuantidade()
+                ))
+                .collect(Collectors.toList());
     }
+
+
 
     public void removerDoCarrinho(UUID livroId) {
         // Obtém o usuário logado e o seu carrinho
