@@ -38,10 +38,12 @@ public class LivroController {
 
     private final LivroService service;
     private final LivroMapper mapper;
-private final AutorRepository autorRepository;
+    private final AutorRepository autorRepository;
+    private final SecurityService securityService;
 
     @PostMapping
     public ResponseEntity<Void> salvar(@RequestBody @Valid CadastroLivroDto dto) {
+        Usuario usuarioId = securityService.obterUsuarioLogado();
 
         Livro livro = mapper.toEntity(dto);
         service.salvar(livro);

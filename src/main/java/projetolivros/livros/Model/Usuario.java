@@ -1,5 +1,6 @@
 package projetolivros.livros.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -47,6 +48,11 @@ public class Usuario implements UserDetails {
     )
 
     private List<Livro> livros;
+
+
+    @JsonIgnoreProperties("usuario")  // Ignora a propriedade 'usuario' dentro de Favorito
+    @OneToMany(mappedBy = "usuario")
+    private List<Favorito> favoritos;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "carrinho_id",foreignKey = @ForeignKey(name = "carrinho_fk",value = ConstraintMode.CONSTRAINT))

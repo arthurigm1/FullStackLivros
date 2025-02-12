@@ -1,6 +1,7 @@
 package projetolivros.livros.Model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -74,4 +75,8 @@ public class Livro {
 
     @OneToMany(mappedBy = "livro")  // Relacionamento de um livro com vários carrinhos
     private List<LivroCarrinho> livrosCarrinho;
+
+    @JsonIgnoreProperties("livro")  // Ignora a propriedade 'livro' dentro de Favorito
+    @OneToMany(mappedBy = "livro")
+    private List<Favorito> favoritos;
 }
