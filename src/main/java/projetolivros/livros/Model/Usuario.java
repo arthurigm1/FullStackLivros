@@ -37,6 +37,9 @@ public class Usuario implements UserDetails {
     @Column
     private String email;
 
+    private String verificationCode;
+
+    private boolean enabled;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
