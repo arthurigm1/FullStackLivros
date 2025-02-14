@@ -20,14 +20,10 @@ public class LivroCarrinho {
     private CarrinhoPk id;
 
     @ManyToOne
-    @MapsId("carrinhoId")
     @JoinColumn(name = "carrinho_id", insertable = false, updatable = false)
-    @JsonIgnore
-    @JsonBackReference
     private Carrinho carrinho;
 
     @ManyToOne
-    @MapsId("livroId")
     @JoinColumn(name = "livro_id", insertable = false, updatable = false)
     private Livro livro;
 

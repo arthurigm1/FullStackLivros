@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Controller.Mapper.LivroMapper;
 import projetolivros.livros.Dto.AtualizarLivroDto;
@@ -42,14 +43,13 @@ public class LivroController {
     private final SecurityService securityService;
 
     @PostMapping
-    public ResponseEntity<Void> salvar(@RequestBody @Valid CadastroLivroDto dto) {
-        Usuario usuarioId = securityService.obterUsuarioLogado();
-
-        Livro livro = mapper.toEntity(dto);
+    @Transactional
+    public ResponseEntity<Object> cadastrarLivro(@RequestBody @Valid CadastroLivroDto cadastroLivroDto) {
+        Livro livro = mapper.toEntity(cadastroLivroDto);
         service.salvar(livro);
         return ResponseEntity.ok().build();
-    }
 
+    }
     @GetMapping("{id}")
     public ResponseEntity<ResultadoLivroDto> obterDetalhes(
             @PathVariable("id") String id) {

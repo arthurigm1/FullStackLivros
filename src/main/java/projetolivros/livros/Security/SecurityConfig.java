@@ -49,6 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/livros/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/autores/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/carrinhos/adicionar/**").authenticated() // Permitindo acesso apenas para usuários autenticados
+                        .requestMatchers(HttpMethod.GET,"/auth/verify" ).permitAll()
                         .anyRequest().authenticated()
 
                 )

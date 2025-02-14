@@ -50,4 +50,19 @@ public class UsuarioService {
     public Usuario obterPorEmail(String email) {
         return userRepository.findByEmail(email);
     }
+    public boolean verify(String verificationCode){
+
+        Usuario user = userRepository.findByVerificationCode(verificationCode);
+
+        if(user == null || user.isEnabled()){
+            return false;
+        } else {
+            user.setVerificationCode(null);
+            user.setEnabled(true);
+            userRepository.save(user);
+
+            return true;
+        }
+    }
+
 }

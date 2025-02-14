@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import projetolivros.livros.Model.GeneroLivro;
 import projetolivros.livros.Model.Livro;
 import projetolivros.livros.Model.Usuario;
@@ -18,12 +19,12 @@ import projetolivros.livros.Security.SecurityService;
 import projetolivros.livros.Security.TokenService;
 import projetolivros.livros.Validador.LivroValidador;
 
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static projetolivros.livros.Repository.Specs.LivroSpecs.*;
-
 @Service
 @RequiredArgsConstructor
 public class LivroService {
@@ -32,6 +33,7 @@ public class LivroService {
     private final LivroValidador livroValidador;
     private final SecurityService securityService;
 
+    @Transactional
     public Livro salvar(Livro livro) {
         livroValidador.validar(livro);
         Usuario usuario = securityService.obterUsuarioLogado();
@@ -53,9 +55,15 @@ public class LivroService {
             String titulo,
             String nomeAutor) {
 
-        Specification<Livro> specs = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
+        /*Specification<Livro> specs =
+                Specification
+                        .where(LivroSpecs.isbnEqual(isbn)
+                                .and(LivroSpecs.generoEqual(generoLivro)
+                                        .and(LivroSpecs.tituloLike(titulo))));*/
 
+        Specification<Livro> specs = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
         if (isbn != null) {
+            //query = query and isbn =:isbn
             specs = specs.and(isbnEqual(isbn));
         }
         if (generoLivro != null) {
@@ -64,16 +72,15 @@ public class LivroService {
         if (titulo != null) {
             specs = specs.and(tituloLike(titulo));
         }
-        if (anoPublicacao != null) {
+        if(anoPublicacao != null) {
             specs = specs.and(anoPulicacaoAno(anoPublicacao));
         }
-        if (nomeAutor != null) {
+        if(nomeAutor != null) {
             specs = specs.and(nomeAutorLike(nomeAutor));
         }
 
-        return livroRepository.findAll(specs);
+        return  livroRepository.findAll(specs);
     }
-
 
     public void atualizar( Livro livro) {
         if(livro.getId() == null){

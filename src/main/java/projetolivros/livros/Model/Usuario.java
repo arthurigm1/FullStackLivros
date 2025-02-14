@@ -53,7 +53,7 @@ public class Usuario implements UserDetails {
     private List<Livro> livros;
 
 
-    @JsonIgnoreProperties("usuario")  // Ignora a propriedade 'usuario' dentro de Favorito
+
     @OneToMany(mappedBy = "usuario")
     private List<Favorito> favoritos;
 

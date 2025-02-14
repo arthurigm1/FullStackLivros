@@ -5,12 +5,14 @@ import org.springframework.stereotype.Service;
 import projetolivros.livros.Dto.AutorDto;
 import projetolivros.livros.Dto.LivroFavoritoDto;
 import projetolivros.livros.Dto.ResultadoLivroDto;
+import projetolivros.livros.Model.Autor;
 import projetolivros.livros.Model.Favorito;
 import projetolivros.livros.Model.Livro;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.FavoritoRepository;
 import projetolivros.livros.Security.SecurityService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,26 +46,40 @@ public class FavoritoService {
 
     public List<ResultadoLivroDto> listarLivrosFavoritos() {
         Usuario usuario = securityService.obterUsuarioLogado();
+
         // Busca os favoritos do usuário
-        List<Favorito> favoritos = favoritoRepository.findByUsuarioId(usuario.getId());
+        List<Favorito> favoritos = Optional.ofNullable(favoritoRepository.findByUsuarioId(usuario.getId()))
+                .orElse(Collections.emptyList());
+
+        // Se não houver favoritos, retorna lista vazia
+        if (favoritos.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         return favoritos.stream()
-                .map(favorito -> new ResultadoLivroDto(
-                        favorito.getLivro().getId(),
-                        favorito.getLivro().getIsbn(),
-                        favorito.getLivro().getTitulo(),
-                        favorito.getLivro().getDataPublicacao(),
-                        favorito.getLivro().getPreco(),
-                        favorito.getLivro().getGenero(),
-                        new AutorDto(
-                                favorito.getLivro().getAutor().getId(),
-                                favorito.getLivro().getAutor().getNome(),
-                                favorito.getLivro().getAutor().getDataNascimento(),
-                                favorito.getLivro().getAutor().getNacionalidade()
-                        )
-                ))
+                .filter(favorito -> favorito.getLivro() != null) // Evita erros se o livro for nulo
+                .map(favorito -> {
+                    Livro livro = favorito.getLivro();
+                    Autor autor = livro.getAutor(); // Pode ser null
+
+                    return new ResultadoLivroDto(
+                            livro.getId(),
+                            livro.getIsbn(),
+                            livro.getTitulo(),
+                            livro.getDataPublicacao(),
+                            livro.getPreco(),
+                            livro.getGenero(),
+                            (autor != null) ? new AutorDto(
+                                    autor.getId(),
+                                    autor.getNome(),
+                                    autor.getDataNascimento(),
+                                    autor.getNacionalidade()
+                            ) : null // Se autor for nulo, passa null
+                    );
+                })
                 .collect(Collectors.toList());
     }
+
 
 
 

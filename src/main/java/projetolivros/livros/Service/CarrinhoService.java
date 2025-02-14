@@ -102,7 +102,7 @@ public class CarrinhoService {
 
 
 
-    public void removerDoCarrinho(UUID livroId) {
+    /*public void removerDoCarrinho(UUID livroId) {
         // Obtém o usuário logado e o seu carrinho
         Usuario usuario = securityService.obterUsuarioLogado();
         Carrinho carrinho = carrinhoRepository.findByUsuarioId(usuario.getId())
@@ -111,5 +111,22 @@ public class CarrinhoService {
         // Remove o item do carrinho
         livroCarrinhoRepository.findByCarrinhoIdAndLivroId(carrinho.getId(), livroId)
                 .ifPresent(livroCarrinhoRepository::delete);
+    }*/
+
+    public void removerUmaQuantidade(UUID livroId){
+        Usuario usuario = securityService.obterUsuarioLogado();
+        Carrinho carrinho = carrinhoRepository.findByUsuarioId(usuario.getId())
+                .orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
+        Optional<LivroCarrinho> itemOptional = livroCarrinhoRepository.findByCarrinhoIdAndLivroId(carrinho.getId(), livroId);
+        if (itemOptional.isPresent()) {
+            LivroCarrinho item = itemOptional.get();
+            if (item.getQuantidade() > 1) {
+                item.setQuantidade(item.getQuantidade() - 1);
+                livroCarrinhoRepository.save(item);
+            } else {
+                livroCarrinhoRepository.delete(item);
+            }
+        }
+
     }
 }

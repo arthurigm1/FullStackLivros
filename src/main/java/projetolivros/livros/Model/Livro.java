@@ -45,20 +45,15 @@ public class Livro {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "genero", length = 30, nullable = false)
-    @NotNull
-    @NotBlank
     private GeneroLivro genero;
 
     @Column(name = "preco", precision = 18, scale = 2)
     private BigDecimal preco;
 
-    @ManyToOne(
-//            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY
+    @ManyToOne(fetch = FetchType.EAGER
     )
     @JoinColumn(name = "id_autor")
     @NotNull
-    @NotBlank
     private Autor autor;
 
     @CreatedDate
@@ -79,4 +74,13 @@ public class Livro {
     @JsonIgnoreProperties("livro")  // Ignora a propriedade 'livro' dentro de Favorito
     @OneToMany(mappedBy = "livro")
     private List<Favorito> favoritos;
+
+    private String descricao;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_editora")
+    private Editora editora;  // Relacionamento com a Editora
+
+
+
 }
