@@ -30,4 +30,7 @@ public class LivroCarrinho {
     private Integer quantidade;
 
     private BigDecimal preco;
+
+    @ManyToOne
+    private Pedido pedido; // Adicionado relacionamento com Pedido
 }

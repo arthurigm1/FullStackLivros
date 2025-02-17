@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Model.Endereco;
 import projetolivros.livros.Service.EnderecoService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,4 +29,17 @@ public class EnderecoController {
 
         return ResponseEntity.ok(enderecoSalvo);
     }
+
+    @GetMapping("")
+    public ResponseEntity<List<Endereco>> buscarEnderecosPorUsuario() {
+
+        List<Endereco> enderecos = enderecoService.buscarEnderecosPorUsuario();
+        return ResponseEntity.ok(enderecos);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> removerEndereco(@PathVariable UUID id) {
+        enderecoService.removerEndereco(id);
+        return ResponseEntity.ok().build();
+    }
+
 }

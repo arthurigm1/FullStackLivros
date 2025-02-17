@@ -2,16 +2,23 @@ package projetolivros.livros.Service;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import projetolivros.livros.Dto.AlterarSenhadto;
 import projetolivros.livros.Dto.RegisterRequestDTO;
 
+import projetolivros.livros.Dto.UsuarioAtualizardto;
 import projetolivros.livros.Exceptions.RegistroException;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.UsuarioRepository;
+import projetolivros.livros.Security.AuthenticatedUserProvider;
+import projetolivros.livros.Security.PasswordEncoderConfig;
+import projetolivros.livros.Security.SecurityService;
 import projetolivros.livros.Utill.RandomString;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,7 +26,36 @@ public class UsuarioService {
 
     private final UsuarioRepository userRepository;
     private final MailService mailService;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticatedUserProvider authenticatedUserProvider;
 
+    public Usuario obterDados(){
+        String email = authenticatedUserProvider.getAuthenticatedUsername();
+        return userRepository.findByEmail(email);
+
+    }
+
+    public Usuario atualizarUsuario( UsuarioAtualizardto usuarioDTO) {
+        String email = authenticatedUserProvider.getAuthenticatedUsername();
+        Usuario usuario = userRepository.findByEmail(email);
+
+        if (usuario != null) {
+            usuario.setNome(usuarioDTO.getNome());
+            usuario.setEmail(usuarioDTO.getEmail());
+            usuario.setDataNascimento(usuarioDTO.getDataNascimento());
+
+            // Mantém o CPF existente, se já estiver cadastrado
+            if (usuario.getCpf() != null && !usuario.getCpf().isEmpty()) {
+                usuarioDTO.setCpf(usuario.getCpf());
+            } else {
+                usuario.setCpf(usuarioDTO.getCpf()); // Se não houver CPF, permite cadastrar
+            }
+
+            return userRepository.save(usuario);
+        }
+
+        return null;
+    }
     public RegisterRequestDTO registerUser(Usuario user) throws UnsupportedEncodingException, MessagingException {
         if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new RegistroException("Este e-mail já está cadastrado.");
@@ -64,5 +100,18 @@ public class UsuarioService {
             return true;
         }
     }
+    public boolean alterarSenha( AlterarSenhadto alterarSenhaDTO) {
+        String email = authenticatedUserProvider.getAuthenticatedUsername();
+        Usuario usuario = userRepository.findByEmail(email);
+
+            if (!passwordEncoder.matches(alterarSenhaDTO.getSenhaAtual(), usuario.getSenha())) {
+                return false; // Senha atual incorreta
+            }
+
+            usuario.setSenha(passwordEncoder.encode(alterarSenhaDTO.getNovaSenha()));
+            userRepository.save(usuario);
+            return true;
+    }
+
 
 }

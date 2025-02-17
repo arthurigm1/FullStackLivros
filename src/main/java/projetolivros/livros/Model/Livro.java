@@ -81,6 +81,9 @@ public class Livro {
     @JoinColumn(name = "id_editora")
     private Editora editora;  // Relacionamento com a Editora
 
+    @OneToMany(mappedBy = "livro")
+    private List<LivroPedido> pedidos;
+
 
 
 }

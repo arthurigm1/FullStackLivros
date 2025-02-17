@@ -12,7 +12,9 @@ import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +38,10 @@ public class Usuario implements UserDetails {
     @Column
     private String senha;
 
+    @Column
+    private String cpf;
+    @Column
+    private LocalDate dataNascimento;
     @Column
     private String email;
 
@@ -66,6 +72,9 @@ public class Usuario implements UserDetails {
     @JsonBackReference
     @OneToMany(mappedBy = "usuario")
     private List<Endereco> enderecos;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Pedido> pedidos;
 
     @Override
     public String getPassword() {

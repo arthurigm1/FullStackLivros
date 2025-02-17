@@ -7,16 +7,16 @@ import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.EnderecoRepository;
 import projetolivros.livros.Security.SecurityService;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class EnderecoService {
 
-    @Autowired
-    private EnderecoRepository enderecoRepository;
 
     @Autowired
-    private ViaCepService viaCepService;
+    private EnderecoRepository enderecoRepository;
 
     @Autowired
     private SecurityService securityService;
@@ -25,7 +25,21 @@ public class EnderecoService {
         endereco.setUsuario(usuario);
         return enderecoRepository.save(endereco);
     }
+    public void removerEndereco(UUID enderecoId) {
+        Optional<Endereco> endereco = enderecoRepository.findById(enderecoId);
+        if (endereco.isPresent()) {
+            enderecoRepository.delete(endereco.get());
+        } else {
+            // Tratar caso o endereço não seja encontrado, caso necessário
+            throw new RuntimeException("Endereço não encontrado");
+        }
+    }
 
+    public List<Endereco> buscarEnderecosPorUsuario() {
+        Usuario usuario = securityService.obterUsuarioLogado();
+
+        return enderecoRepository.findByUsuarioId(usuario.getId()); // Supondo que você tenha esse método no repositório
+    }
     public Endereco buscarEnderecoPorId(UUID id) {
         return enderecoRepository.findById(id).orElse(null);
     }
