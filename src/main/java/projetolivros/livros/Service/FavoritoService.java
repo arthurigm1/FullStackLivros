@@ -69,6 +69,7 @@ public class FavoritoService {
                             livro.getDataPublicacao(),
                             livro.getPreco(),
                             livro.getGenero(),
+                            livro.getDescricao(),
                             (autor != null) ? new AutorDto(
                                     autor.getId(),
                                     autor.getNome(),

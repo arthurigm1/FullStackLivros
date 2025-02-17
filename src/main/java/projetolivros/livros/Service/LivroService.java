@@ -41,6 +41,7 @@ public class LivroService {
         return livroRepository.save(livro);
     }
 
+    @Transactional
     public Optional<Livro> buscarPorId(UUID id) {
         return livroRepository.findById(id);
     }

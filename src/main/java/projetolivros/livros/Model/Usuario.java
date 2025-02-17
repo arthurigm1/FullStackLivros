@@ -1,6 +1,8 @@
 package projetolivros.livros.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -60,6 +62,10 @@ public class Usuario implements UserDetails {
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "carrinho_id",foreignKey = @ForeignKey(name = "carrinho_fk",value = ConstraintMode.CONSTRAINT))
     private Carrinho carrinho;
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "usuario")
+    private List<Endereco> enderecos;
 
     @Override
     public String getPassword() {

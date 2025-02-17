@@ -15,5 +15,7 @@ public record ResultadoLivroDto(
         LocalDate dataPublicacao,
         BigDecimal preco,
         GeneroLivro genero,
-        AutorDto autor) {
+        String descricao,
+        AutorDto autor
+       ) {
 }

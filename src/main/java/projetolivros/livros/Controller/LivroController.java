@@ -51,14 +51,20 @@ public class LivroController {
 
     }
     @GetMapping("{id}")
-    public ResponseEntity<ResultadoLivroDto> obterDetalhes(
-            @PathVariable("id") String id) {
-        return service.buscarPorId(UUID.fromString(id))
-                .map(livro -> {
-                    var dto = mapper.toDTO(livro);
-                    return ResponseEntity.ok(dto);
-                }).orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<ResultadoLivroDto> obterDetalhes(@PathVariable("id") String id) {
+        try {
+            UUID livroId = UUID.fromString(id);
+            return service.buscarPorId(livroId)
+                    .map(livro -> {
+                        var dto = mapper.toDTO(livro);
+                        return ResponseEntity.ok(dto);
+                    })
+                    .orElseGet(() -> ResponseEntity.notFound().build());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build(); // Retorna 400 se o ID não for um UUID válido
+        }
     }
+
 
     @DeleteMapping("{id}")
 
