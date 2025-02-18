@@ -28,7 +28,7 @@ public class LivroCarrinho {
     private Livro livro;
 
     private Integer quantidade;
-
+    private BigDecimal precoTotal;
     private BigDecimal preco;
 
     @ManyToOne

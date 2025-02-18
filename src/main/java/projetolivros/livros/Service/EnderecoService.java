@@ -20,6 +20,28 @@ public class EnderecoService {
 
     @Autowired
     private SecurityService securityService;
+
+    public Endereco atualizarEndereco(UUID id, Endereco enderecoAtualizado) {
+        Optional<Endereco> enderecoExistenteOptional = enderecoRepository.findById(id);
+
+        if (!enderecoExistenteOptional.isPresent()) {
+            return null; // Retorna null se o endereço não for encontrado
+        }
+
+        Endereco enderecoExistente = enderecoExistenteOptional.get();
+
+        // Atualizando as informações do endereço
+        enderecoExistente.setCep(enderecoAtualizado.getCep());
+        enderecoExistente.setLogradouro(enderecoAtualizado.getLogradouro());
+        enderecoExistente.setComplemento(enderecoAtualizado.getComplemento());
+        enderecoExistente.setBairro(enderecoAtualizado.getBairro());
+        enderecoExistente.setLocalidade(enderecoAtualizado.getLocalidade());
+        enderecoExistente.setUf(enderecoAtualizado.getUf());
+
+        // Salvando o endereço atualizado
+        return enderecoRepository.save(enderecoExistente);
+    }
+
     public Endereco salvarEndereco(Endereco endereco) {
         Usuario usuario = securityService.obterUsuarioLogado();
         endereco.setUsuario(usuario);

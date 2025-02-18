@@ -3,6 +3,7 @@ package projetolivros.livros.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import projetolivros.livros.Controller.Mapper.CarrinhoMapper;
 import projetolivros.livros.Dto.LivroCarrinhoDto;
 import projetolivros.livros.Dto.LivroCarrinhoRequestdto;
 import projetolivros.livros.Exceptions.CarrinhoNaoEncontradoException;
@@ -33,6 +34,13 @@ public class CarrinhoService {
 
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private CarrinhoMapper livrocarrinhoMapper;
+
+
+
+
+
 
     public LivroCarrinhoRequestdto criarOuAdicionarLivroAoCarrinho(UUID livroId, int quantidade) throws Exception {
         // Obtém o usuário logado
@@ -57,8 +65,8 @@ public class CarrinhoService {
         if (livroCarrinhoExistente != null) {
             // Se o livro já está no carrinho, incrementa a quantidade e o preço
             livroCarrinhoExistente.setQuantidade(livroCarrinhoExistente.getQuantidade() + quantidade);
-            livroCarrinhoExistente.setPreco(livroCarrinhoExistente.getPreco().add(livro.getPreco().multiply(BigDecimal.valueOf(quantidade))));
-
+            BigDecimal novoPrecoTotal = livroCarrinhoExistente.getPrecoTotal().add(livro.getPreco().multiply(BigDecimal.valueOf(quantidade)));
+            livroCarrinhoExistente.setPrecoTotal(novoPrecoTotal);
             // Atualiza o item no banco
             livroCarrinhoRepository.save(livroCarrinhoExistente);
         } else {
@@ -68,7 +76,8 @@ public class CarrinhoService {
             novoLivroCarrinho.setCarrinho(carrinho);
             novoLivroCarrinho.setLivro(livro);
             novoLivroCarrinho.setQuantidade(quantidade);
-            novoLivroCarrinho.setPreco(livro.getPreco().multiply(BigDecimal.valueOf(quantidade)));
+            novoLivroCarrinho.setPreco(livro.getPreco());
+            novoLivroCarrinho.setPrecoTotal(livro.getPreco().multiply(BigDecimal.valueOf(quantidade)));
 
             // Salva o novo item no carrinho
             livroCarrinhoRepository.save(novoLivroCarrinho);
@@ -101,32 +110,31 @@ public class CarrinhoService {
     }
 
 
-
-    /*public void removerDoCarrinho(UUID livroId) {
-        // Obtém o usuário logado e o seu carrinho
+    public void removerUmaQuantidade(UUID livroId) {
         Usuario usuario = securityService.obterUsuarioLogado();
         Carrinho carrinho = carrinhoRepository.findByUsuarioId(usuario.getId())
                 .orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
 
-        // Remove o item do carrinho
-        livroCarrinhoRepository.findByCarrinhoIdAndLivroId(carrinho.getId(), livroId)
-                .ifPresent(livroCarrinhoRepository::delete);
-    }*/
-
-    public void removerUmaQuantidade(UUID livroId){
-        Usuario usuario = securityService.obterUsuarioLogado();
-        Carrinho carrinho = carrinhoRepository.findByUsuarioId(usuario.getId())
-                .orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
         Optional<LivroCarrinho> itemOptional = livroCarrinhoRepository.findByCarrinhoIdAndLivroId(carrinho.getId(), livroId);
+
         if (itemOptional.isPresent()) {
             LivroCarrinho item = itemOptional.get();
+
+            // Verificar se a quantidade é maior que 1
             if (item.getQuantidade() > 1) {
                 item.setQuantidade(item.getQuantidade() - 1);
+
+                // Atualizar o preço total corretamente
+                BigDecimal precoTotal = item.getPrecoTotal().subtract(item.getPreco());
+                item.setPrecoTotal(precoTotal);
+
+                // Salvar as alterações no carrinho
                 livroCarrinhoRepository.save(item);
             } else {
+                // Se a quantidade for 1, remove o item completamente
                 livroCarrinhoRepository.delete(item);
             }
         }
-
     }
+
 }

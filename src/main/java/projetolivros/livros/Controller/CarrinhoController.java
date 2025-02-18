@@ -43,11 +43,6 @@ public class CarrinhoController {
         return ResponseEntity.ok(carrinhoService.listarItensDoCarrinho());
     }
 
-   /* @DeleteMapping("/{livroId}")
-    public ResponseEntity<Void> remover(@PathVariable UUID livroId) {
-        carrinhoService.removerDoCarrinho(livroId);
-        return ResponseEntity.ok().build();
-    }*/
 
     @DeleteMapping("/{livroId}")
     public ResponseEntity<Void> removerUmaQuantidade(@PathVariable UUID livroId) {

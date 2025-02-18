@@ -13,5 +13,6 @@ public interface LivroCarrinhoRepository extends JpaRepository<LivroCarrinho, Lo
     List<LivroCarrinho> findByCarrinhoId(Long carrinhoId);
     Optional<LivroCarrinho> findById(CarrinhoPk carrinhoPk);
 
+    Optional<LivroCarrinho> findByLivroId(UUID livroId);
     Optional<LivroCarrinho> findByCarrinhoIdAndLivroId(Long carrinhoId, UUID livroId);
 }

@@ -41,5 +41,13 @@ public class EnderecoController {
         enderecoService.removerEndereco(id);
         return ResponseEntity.ok().build();
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<Endereco> atualizarEndereco(@PathVariable UUID id, @RequestBody Endereco enderecoAtualizado) {
+        Endereco enderecoSalvo = enderecoService.atualizarEndereco(id, enderecoAtualizado);
+        if (enderecoSalvo == null) {
+            return ResponseEntity.notFound().build(); // Retorna 404 se o endereço não for encontrado
+        }
+        return ResponseEntity.ok(enderecoSalvo); // Retorna o endereço atualizado
+    }
 
 }
