@@ -4,7 +4,7 @@ package projetolivros.livros.Repository.Specs;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.jpa.domain.Specification;
-import projetolivros.livros.Model.GeneroLivro;
+import projetolivros.livros.Model.Enum.GeneroLivro;
 import projetolivros.livros.Model.Livro;
 
 // ESTUDO SOBRE SPECIFICATION É POSSIVEL FAZER AS CONSULTAS COM @QUERY !

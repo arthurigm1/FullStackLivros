@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import projetolivros.livros.Model.Autor;
-import projetolivros.livros.Model.GeneroLivro;
+import projetolivros.livros.Model.Enum.GeneroLivro;
 import projetolivros.livros.Model.Livro;
 
 import java.math.BigDecimal;

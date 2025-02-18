@@ -1,11 +1,9 @@
 package projetolivros.livros.Dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
 import lombok.Getter;
 import lombok.Setter;
-import projetolivros.livros.Model.GeneroLivro;
+import projetolivros.livros.Model.Enum.GeneroLivro;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

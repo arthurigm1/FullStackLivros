@@ -2,7 +2,7 @@ package projetolivros.livros.Dto;
 
 
 
-import projetolivros.livros.Model.GeneroLivro;
+import projetolivros.livros.Model.Enum.GeneroLivro;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -4,13 +4,7 @@ package projetolivros.livros.Controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Controller.Mapper.LivroMapper;
@@ -18,15 +12,12 @@ import projetolivros.livros.Dto.AtualizarLivroDto;
 import projetolivros.livros.Dto.CadastroLivroDto;
 import projetolivros.livros.Dto.ResultadoLivroDto;
 import projetolivros.livros.Model.Autor;
-import projetolivros.livros.Model.GeneroLivro;
+
+import projetolivros.livros.Model.Enum.GeneroLivro;
 import projetolivros.livros.Model.Livro;
-import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.AutorRepository;
-import projetolivros.livros.Repository.UsuarioRepository;
 import projetolivros.livros.Security.SecurityService;
-import projetolivros.livros.Security.TokenService;
 import projetolivros.livros.Service.LivroService;
-import projetolivros.livros.Service.UsuarioService;
 
 import java.util.List;
 import java.util.UUID;

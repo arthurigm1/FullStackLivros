@@ -2,21 +2,14 @@ package projetolivros.livros.Service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import projetolivros.livros.Model.GeneroLivro;
+import projetolivros.livros.Model.Enum.GeneroLivro;
 import projetolivros.livros.Model.Livro;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.LivroRepository;
-import projetolivros.livros.Repository.UsuarioRepository;
 import projetolivros.livros.Security.SecurityService;
-import projetolivros.livros.Security.TokenService;
 import projetolivros.livros.Validador.LivroValidador;
 
 

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import projetolivros.livros.Dto.PixChargeRequest;
 import projetolivros.livros.Model.*;
+import projetolivros.livros.Model.Enum.StatusPedido;
 import projetolivros.livros.Repository.CarrinhoRepository;
 import projetolivros.livros.Repository.PedidoRepository;
 import projetolivros.livros.Security.SecurityService;
@@ -21,6 +22,12 @@ public class PedidoService {
     private final PixService pixService;
     private final SecurityService securityService;
 
+
+    public List<Pedido> listarPedidosPorUsuario() {
+        // Busca todos os pedidos do usuário
+        Usuario usuario = securityService.obterUsuarioLogado();
+        return pedidoRepository.findByUsuarioId(usuario.getId());
+    }
     public String criarPedido() {
         // Obter o usuário logado
         Usuario usuario = securityService.obterUsuarioLogado();
@@ -41,6 +48,7 @@ public class PedidoService {
 
         // Criar um novo pedido
         Pedido pedido = new Pedido();
+        pedido.setStatus(StatusPedido.AGUARDANDO_PAGAMENTO);
         pedido.setUsuario(usuario);
 
         // Calcular o valor total do pedido
@@ -67,7 +75,8 @@ public class PedidoService {
                     livroPedido.setLivro(item.getLivro());  // Associando o livro ao pedido
                     livroPedido.setQuantidade(item.getQuantidade());
                     livroPedido.setPreco(item.getPreco());
-                    livroPedido.setPedido(pedidoSalvo);  // Associando o pedido ao item
+                    livroPedido.setPedido(pedidoSalvo);  // Associando o pedido ao item\
+
                     System.out.println("LivroPedido antes de salvar: " + livroPedido);
 
                     return livroPedido;
@@ -97,5 +106,11 @@ public class PedidoService {
         } else {
             throw new IllegalStateException("Erro ao gerar QR Code: resposta do Pix inválida");
         }
+    }
+
+    public void atualizarStatusParaPago(Long pedidoId) {
+        Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+        pedido.setStatus(StatusPedido.PAGO);
+        pedidoRepository.save(pedido);
     }
 }

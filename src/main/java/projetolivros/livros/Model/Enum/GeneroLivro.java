@@ -1,4 +1,4 @@
-package projetolivros.livros.Model;
+package projetolivros.livros.Model.Enum;
 
 
 import lombok.ToString;
