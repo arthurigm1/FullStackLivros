@@ -33,6 +33,7 @@ public class EditoraService {
         Editora editora1 = new Editora();
         // Mapeie os campos do DTO para a entidade
         editora1.setNome(editora.getNome());
+        editora1.setImg(editora.getImg());
         return editoraRepository.save(editora1);
     }
 

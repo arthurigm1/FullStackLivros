@@ -30,7 +30,8 @@ public record CadastroLivroDto(
         @NotBlank
         String descricao,
 
-        @NotNull
-        UUID idEditora
+        UUID idEditora,
+        @NotBlank
+        String img
 ) {
 }

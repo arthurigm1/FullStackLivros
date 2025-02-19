@@ -43,7 +43,7 @@ public class Livro {
 
     @Column(name = "data_publicacao")
     private LocalDate dataPublicacao;
-
+    private String img;
     @Enumerated(EnumType.STRING)
     @Column(name = "genero", length = 30, nullable = false)
     private GeneroLivro genero;

@@ -16,6 +16,10 @@ public record ResultadoLivroDto(
         BigDecimal preco,
         GeneroLivro genero,
         String descricao,
+        String img,
         AutorDto autor
+
+
+
        ) {
 }

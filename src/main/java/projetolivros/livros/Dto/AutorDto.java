@@ -19,7 +19,11 @@ public record AutorDto(UUID id,
                        LocalDate dataNascimento,
                        @NotBlank(message = "campo obrigatorio!")
                        @Size(min = 1,max = 50,message = "campo fora do tamanho maximo")
-                       String nacionalidade) {
+                       String nacionalidade,
+                       @NotBlank(message = "campo obrigatorio!")
+                       String descricao,
+                       @NotBlank(message = "campo obrigatorio!")
+                       String img) {
 
 
 }

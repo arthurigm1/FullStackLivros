@@ -38,7 +38,8 @@ public class Autor {
 
     @OneToMany(mappedBy = "autor", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Livro> livros;
-
+    private String img;
+    private String descricao;
     @CreatedDate
     @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;

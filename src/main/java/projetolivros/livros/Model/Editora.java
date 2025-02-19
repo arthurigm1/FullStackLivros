@@ -24,7 +24,7 @@ public class Editora {
 
     @Column(name = "nome", length = 150, nullable = false)
     private String nome;
-
+    private String img;
     @OneToMany(mappedBy = "editora")
     @JsonBackReference
     private List<Livro> livros;

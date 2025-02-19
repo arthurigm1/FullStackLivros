@@ -70,11 +70,15 @@ public class FavoritoService {
                             livro.getPreco(),
                             livro.getGenero(),
                             livro.getDescricao(),
+                            livro.getImg(),
                             (autor != null) ? new AutorDto(
                                     autor.getId(),
                                     autor.getNome(),
                                     autor.getDataNascimento(),
-                                    autor.getNacionalidade()
+                                    autor.getNacionalidade(),
+                                    autor.getDescricao(),
+                                    autor.getImg()
+
                             ) : null // Se autor for nulo, passa null
                     );
                 })
