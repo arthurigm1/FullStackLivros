@@ -1,6 +1,8 @@
 package projetolivros.livros.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import projetolivros.livros.Model.PasswordResetToken;
 import projetolivros.livros.Model.Pedido;
 
@@ -9,4 +11,5 @@ import java.util.UUID;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByUsuarioId(UUID usuarioId);
+
 }

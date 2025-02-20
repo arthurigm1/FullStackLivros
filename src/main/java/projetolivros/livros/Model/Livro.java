@@ -51,12 +51,9 @@ public class Livro {
     @Column(name = "preco", precision = 18, scale = 2)
     private BigDecimal preco;
 
-    @ManyToOne(fetch = FetchType.EAGER
-    )
-    @JoinColumn(name = "id_autor")
-    @NotNull
+    @ManyToOne()
+    @JoinColumn(name = "id_autor", nullable = false)
     private Autor autor;
-
     @CreatedDate
     @Column(name = "data_cadastro")
     private LocalDateTime dataCadastro;
@@ -85,6 +82,7 @@ public class Livro {
     @OneToMany(mappedBy = "livro")
     private List<LivroPedido> pedidos;
 
-
+    @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AvaliacaoLivro> avaliacoes;
 
 }

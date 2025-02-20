@@ -47,14 +47,10 @@ public class LivroService {
             GeneroLivro generoLivro,
             Integer anoPublicacao,
             String titulo,
-            String nomeAutor) {
-
-        /*Specification<Livro> specs =
-                Specification
-                        .where(LivroSpecs.isbnEqual(isbn)
-                                .and(LivroSpecs.generoEqual(generoLivro)
-                                        .and(LivroSpecs.tituloLike(titulo))));*/
-
+            String nomeAutor,
+            String nomeEditora,
+            Double precoMinimo,
+            Double precoMaximo) {
         Specification<Livro> specs = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.conjunction());
         if (isbn != null) {
             //query = query and isbn =:isbn
@@ -72,6 +68,13 @@ public class LivroService {
         if(nomeAutor != null) {
             specs = specs.and(nomeAutorLike(nomeAutor));
         }
+        if(nomeEditora != null){
+            specs =specs.and(nomeEditoraLike(nomeEditora));
+        }
+        if (precoMinimo != null || precoMaximo != null) {
+            specs = specs.and(precoBetween(precoMinimo, precoMaximo));
+        }
+
 
         return  livroRepository.findAll(specs);
     }

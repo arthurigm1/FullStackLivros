@@ -73,12 +73,15 @@ public class LivroController {
             @RequestParam(value = "titulo", required = false) String titulo,
             @RequestParam(value = "nome-autor", required = false) String nomeAutor,
             @RequestParam(value = "genero", required = false) GeneroLivro genero,
-            @RequestParam(value = "ano-publicacao", required = false) Integer anoPublicacao
+            @RequestParam(value = "ano-publicacao", required = false) Integer anoPublicacao,
+            @RequestParam(value = "nome-editora", required = false) String nomeEditora,
+            @RequestParam(value = "preco-minimo", required = false) Double precoMinimo,
+            @RequestParam(value = "preco-maximo", required = false) Double precoMaximo
     ) {
 
 
         // Pesquisar livros com filtros
-        List<Livro> livrosResultado = service.pesquisaporFiltro(isbn, genero, anoPublicacao, titulo, nomeAutor);
+        List<Livro> livrosResultado = service.pesquisaporFiltro(isbn, genero, anoPublicacao, titulo, nomeAutor,nomeEditora,precoMinimo,precoMaximo);
 
         // Mapear a lista de livros para DTOs
         List<ResultadoLivroDto> resultado = livrosResultado.stream()

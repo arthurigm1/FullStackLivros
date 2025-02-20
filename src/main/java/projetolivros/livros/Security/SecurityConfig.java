@@ -53,6 +53,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/auth/verify" ).permitAll()
                         .requestMatchers(HttpMethod.GET,"/livros/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET,"/editoras/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/avaliacoes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/avaliacoes/**").permitAll()
                         .anyRequest().authenticated()
 
                 )
