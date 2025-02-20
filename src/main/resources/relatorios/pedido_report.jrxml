@@ -1,0 +1,104 @@
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="PedidoReport" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+
+    <!-- Definição de parâmetros -->
+    <parameter name="nome" class="java.lang.String"/>
+    <parameter name="endereco" class="java.lang.String"/>
+
+    <!-- Definição dos campos do pedido -->
+    <field name="id" class="java.lang.Long"/>
+    <field name="status" class="java.lang.String"/>
+    <field name="dataCadastro" class="java.lang.String"/>
+    <field name="valorTotal" class="java.math.BigDecimal"/>
+
+    <!-- Cabeçalho do Relatório -->
+    <title>
+        <band height="80">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30" forecolor="#333333"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[2ª VIA DO PEDIDO]]></text>
+            </staticText>
+            <line>
+                <reportElement x="0" y="35" width="555" height="1"/>
+                <graphicElement>
+                    <pen lineWidth="0.5" lineColor="#999999"/>
+                </graphicElement>
+            </line>
+            <staticText>
+                <reportElement x="0" y="40" width="100" height="20"/>
+                <text><![CDATA[Pedido ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="200" y="40" width="150" height="20"/>
+                <text><![CDATA[Data do Pedido]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="400" y="40" width="100" height="20"/>
+                <text><![CDATA[Total]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <!-- Corpo do Pedido -->
+    <detail>
+        <band height="120">
+            <!-- Informações do Pedido -->
+            <textField>
+                <reportElement x="0" y="0" width="100" height="20"/>
+                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="200" y="0" width="150" height="20"/>
+                <textFieldExpression><![CDATA[$F{dataCadastro}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="400" y="0" width="100" height="20"/>
+                <textFieldExpression><![CDATA[ $F{valorTotal}]]></textFieldExpression>
+            </textField>
+
+            <!-- Informações do Cliente -->
+            <staticText>
+                <reportElement x="0" y="30" width="150" height="20"/>
+                <text><![CDATA[Nome do Cliente:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="150" y="30" width="400" height="20"/>
+                <textFieldExpression><![CDATA[$P{nome}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="0" y="50" width="150" height="20"/>
+                <text><![CDATA[Endereço:]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="150" y="50" width="400" height="40"/>
+                <textFieldExpression><![CDATA[$P{endereco}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <!-- Rodapé do Relatório -->
+    <pageFooter>
+        <band height="50">
+            <line>
+                <reportElement x="0" y="0" width="555" height="1"/>
+                <graphicElement>
+                    <pen lineWidth="0.5" lineColor="#999999"/>
+                </graphicElement>
+            </line>
+            <staticText>
+                <reportElement x="0" y="10" width="555" height="20" forecolor="#666666"/>
+                <textElement textAlignment="Center">
+                    <font size="10" isItalic="true"/>
+                </textElement>
+                <text><![CDATA[Este documento é uma 2ª via do pedido.]]></text>
+            </staticText>
+        </band>
+    </pageFooter>
+
+</jasperReport>
