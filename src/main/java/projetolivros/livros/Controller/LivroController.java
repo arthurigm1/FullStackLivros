@@ -31,7 +31,6 @@ public class LivroController {
     private final LivroService service;
     private final LivroMapper mapper;
     private final AutorRepository autorRepository;
-    private final SecurityService securityService;
 
     @PostMapping
     @Transactional

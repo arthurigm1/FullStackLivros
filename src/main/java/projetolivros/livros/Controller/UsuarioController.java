@@ -13,8 +13,10 @@ import projetolivros.livros.Service.UsuarioService;
 @RequestMapping("usuario")
 @RequiredArgsConstructor
 public class UsuarioController {
-private final UsuarioService usuarioService;
-private  final UsuarioMapper usuarioMapper;
+
+    private final UsuarioService usuarioService;
+
+    private  final UsuarioMapper usuarioMapper;
     @GetMapping("")
     public ResponseEntity<UsuarioAtualizardto> buscarUsuarioPorId() {
         Usuario usuario = usuarioService.obterDados();

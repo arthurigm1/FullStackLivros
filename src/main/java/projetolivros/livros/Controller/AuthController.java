@@ -21,7 +21,6 @@ import projetolivros.livros.Service.UsuarioService;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -34,6 +33,10 @@ public class AuthController {
     private final UsuarioService usuarioService;
     private final PasswordResetService passwordResetService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+
+    private final UsuarioRepository usuarioRepository;
+
+
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO> login(@RequestBody @Valid LoginRequestDTO body) {
@@ -109,5 +112,6 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
 
 }

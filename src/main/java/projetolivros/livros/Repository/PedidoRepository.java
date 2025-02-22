@@ -14,8 +14,5 @@ import java.util.UUID;
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     List<Pedido> findByUsuarioId(UUID usuarioId);
 
-    Usuario findByUsuarioId(Usuario usuario);
-
-    Endereco findByEnderecoId(Endereco endereco);
 
 }

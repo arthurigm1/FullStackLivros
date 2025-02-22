@@ -31,15 +31,11 @@ import java.util.stream.Collectors;
 public class PedidoController {
 
     @Autowired
-    private PixService pixService;
-    @Autowired
     private RelatorioService relatorioService;
     @Autowired
     private PedidoService pedidoService;
 
-    @Autowired
-    private PedidoRepository pedidoRepository;
-    private final String jasperReportPath = "relatorios/pedido_report.jrxml";
+
     @GetMapping("/{id}/relatorio")
     public ResponseEntity<byte[]> gerarRelatorio(@PathVariable Long id) {
         byte[] pdfBytes = relatorioService.gerarRelatorio(id);
@@ -61,15 +57,6 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao gerar QR Code");
         }
     }
-
-   /* @GetMapping("/{id}/relatorio")
-    @ResponseStatus(HttpStatus.OK)
-    public void gerarRelatorio(@PathVariable Long id, HttpServletResponse response) throws IOException, JRException {
-
-            relatorioService.gerarRelatorio(id, response);
-
-    }*/
-
 
     @GetMapping("")
     public ResponseEntity<?> listarPedidosDoUsuario() {

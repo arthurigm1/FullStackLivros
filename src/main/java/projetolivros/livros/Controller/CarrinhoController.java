@@ -21,19 +21,16 @@ import java.util.UUID;
 @RequestMapping("carrinhos")
 @RequiredArgsConstructor
 public class CarrinhoController {
-    private final CarrinhoMapper mapper;
+
     @Autowired
     private CarrinhoService carrinhoService;
 
     @PostMapping
     public ResponseEntity<LivroCarrinhoRequestdto> adicionarAoCarrinho(@RequestBody @Valid LivroCarrinhoRequestdto livroCarrinhoRequest) throws Exception {
-
         LivroCarrinhoRequestdto livroAdicionado = carrinhoService.criarOuAdicionarLivroAoCarrinho(
                 livroCarrinhoRequest.getLivroId(),
                 1
         );
-
-
         return ResponseEntity.ok(livroAdicionado);
     }
 

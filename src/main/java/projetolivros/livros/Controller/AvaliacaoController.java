@@ -25,8 +25,6 @@ import java.util.UUID;
 public class AvaliacaoController {
 
     private final AvaliacaoService avaliacaoService;
-    private final SecurityService securityService;
-
 
     @GetMapping("/{livroId}")
     public ResponseEntity<List<AvaliacaoLivroNota>> getAvaliacoesPorLivro(@PathVariable UUID livroId) {

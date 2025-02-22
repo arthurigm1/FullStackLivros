@@ -44,6 +44,7 @@ public class Livro {
     @Column(name = "titulo", length = 150, nullable = false)
     private String titulo;
 
+    private int estoque;
     @Column(name = "data_publicacao")
     private LocalDate dataPublicacao;
     private String img;

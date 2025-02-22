@@ -25,7 +25,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class RelatorioService {
 
-    private final String jasperReportPath = "relatorios/pedido_report.jrxml"; // Ajuste o caminho correto
+    private final String jasperReportPath = "relatorios/pedido_report.jrxml";
     private final String jasperReportPedido = "relatorios/livros_subreport.jasper";
 
     private final PedidoRepository pedidoRepository;
