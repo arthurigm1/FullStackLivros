@@ -39,7 +39,6 @@ public class Usuario implements UserDetails {
     @Column
     private String senha;
 
-    private String provider;
     @Column
     private String cpf;
     @Column
