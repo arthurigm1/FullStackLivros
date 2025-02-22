@@ -102,11 +102,8 @@ public class AuthController {
         Usuario usuario = resetToken.getUsuario();
         usuario.setSenha(passwordEncoder.encode(newPassword));
         repository.save(usuario);
-
-        // Remove o token usado para evitar reutilização
         passwordResetTokenRepository.delete(resetToken);
 
-        // Resposta no formato JSON
         Map<String, String> response = new HashMap<>();
         response.put("message", "Senha redefinida com sucesso!");
 

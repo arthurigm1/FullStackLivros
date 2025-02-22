@@ -29,7 +29,7 @@ public class Pedido {
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LivroPedido> livros;
 
-    private BigDecimal valorTotal; // Valor total do pedido
+    private BigDecimal valorTotal;
 
     @CreatedDate
     @Column(name = "data_cadastro")
@@ -40,11 +40,11 @@ public class Pedido {
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
-    @Enumerated(EnumType.STRING)  // A anotação para armazenar o enum como String no banco de dados
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusPedido status;  // Adiciona o status do pedido
+    private StatusPedido status;
 
     @ManyToOne
     @JoinColumn(name = "endereco_id", nullable = false)
-    private Endereco endereco;  // Adiciona um endereço ao pedido
+    private Endereco endereco;
 }

@@ -27,13 +27,13 @@ public class CarrinhoController {
 
     @PostMapping
     public ResponseEntity<LivroCarrinhoRequestdto> adicionarAoCarrinho(@RequestBody @Valid LivroCarrinhoRequestdto livroCarrinhoRequest) throws Exception {
-        // Chama o serviço para adicionar ou criar o carrinho com o livro
+
         LivroCarrinhoRequestdto livroAdicionado = carrinhoService.criarOuAdicionarLivroAoCarrinho(
                 livroCarrinhoRequest.getLivroId(),
                 1
         );
 
-        // Retorna o DTO com as informações do livro adicionado
+
         return ResponseEntity.ok(livroAdicionado);
     }
 

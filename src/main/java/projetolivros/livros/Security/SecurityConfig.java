@@ -40,7 +40,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ✅ Permite CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
@@ -49,7 +49,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/livros/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/autores/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/carrinhos/adicionar/**").authenticated() // Permitindo acesso apenas para usuários autenticados
+                        .requestMatchers(HttpMethod.POST, "/carrinhos/adicionar/**").authenticated()
                         .requestMatchers(HttpMethod.GET,"/auth/verify" ).permitAll()
                         .requestMatchers(HttpMethod.GET,"/livros/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET,"/editoras/**").permitAll()
@@ -66,10 +66,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4200")); // ✅ Permite requisições do Angular
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // ✅ Métodos permitidos
-        configuration.setAllowedHeaders(List.of("*")); // ✅ Permite qualquer cabeçalho
-        configuration.setAllowCredentials(true); // ✅ Permite envio de cookies e headers de autenticação
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

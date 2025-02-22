@@ -25,7 +25,7 @@ public class EnderecoService {
         Optional<Endereco> enderecoExistenteOptional = enderecoRepository.findById(id);
 
         if (!enderecoExistenteOptional.isPresent()) {
-            return null; // Retorna null se o endereço não for encontrado
+            return null;
         }
 
         Endereco enderecoExistente = enderecoExistenteOptional.get();
@@ -38,7 +38,7 @@ public class EnderecoService {
         enderecoExistente.setLocalidade(enderecoAtualizado.getLocalidade());
         enderecoExistente.setUf(enderecoAtualizado.getUf());
 
-        // Salvando o endereço atualizado
+
         return enderecoRepository.save(enderecoExistente);
     }
 
@@ -52,7 +52,7 @@ public class EnderecoService {
         if (endereco.isPresent()) {
             enderecoRepository.delete(endereco.get());
         } else {
-            // Tratar caso o endereço não seja encontrado, caso necessário
+
             throw new RuntimeException("Endereço não encontrado");
         }
     }
@@ -60,7 +60,7 @@ public class EnderecoService {
     public List<Endereco> buscarEnderecosPorUsuario() {
         Usuario usuario = securityService.obterUsuarioLogado();
 
-        return enderecoRepository.findByUsuarioId(usuario.getId()); // Supondo que você tenha esse método no repositório
+        return enderecoRepository.findByUsuarioId(usuario.getId());
     }
     public Endereco buscarEnderecoPorId(UUID id) {
         return enderecoRepository.findById(id).orElse(null);

@@ -1,5 +1,6 @@
 package projetolivros.livros.Model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
@@ -32,15 +33,16 @@ public class AvaliacaoLivro {
     @Min(1)
     @Max(5)
     @Column(name = "nota")
-    private Integer nota;  // Nota de 1 a 5
+    private int nota;
 
     @Column(name = "comentario", length = 500)
-    private String comentario; // Comentário opcional
+    private String comentario;
 
     @ManyToOne
-    @JoinColumn(name = "id_livro", nullable = false)
+    @JoinColumn(name = "id_livro")
     @JsonIgnore
-    private Livro livro;  // Relacionamento com o Livro
+    private Livro livro;
+
 
     @CreatedDate
     @Column(name = "data_cadastro")

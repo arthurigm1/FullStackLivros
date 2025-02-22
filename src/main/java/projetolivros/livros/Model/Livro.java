@@ -1,7 +1,10 @@
 package projetolivros.livros.Model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -66,10 +69,10 @@ public class Livro {
     @JoinColumn(name = "id_usuario")
     private Usuario usuario;
 
-    @OneToMany(mappedBy = "livro")  // Relacionamento de um livro com vários carrinhos
+    @OneToMany(mappedBy = "livro")
     private List<LivroCarrinho> livrosCarrinho;
 
-    @JsonIgnoreProperties("livro")  // Ignora a propriedade 'livro' dentro de Favorito
+    @JsonIgnoreProperties("livro")
     @OneToMany(mappedBy = "livro")
     private List<Favorito> favoritos;
 
@@ -77,12 +80,15 @@ public class Livro {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_editora")
-    private Editora editora;  // Relacionamento com a Editora
+    private Editora editora;
 
     @OneToMany(mappedBy = "livro")
     private List<LivroPedido> pedidos;
 
     @OneToMany(mappedBy = "livro", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<AvaliacaoLivro> avaliacoes;
+
+
 
 }

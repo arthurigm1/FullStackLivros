@@ -40,8 +40,8 @@ public class EditoraController {
     // Endpoint para salvar uma nova editora
     @PostMapping
     public ResponseEntity<Editora> salvar(@RequestBody EditoraDto editora) {
-        Editora savedEditora = editoraService.salvar(editora);
-        return new ResponseEntity<>(savedEditora, HttpStatus.CREATED);
+        editoraService.salvar(editora);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     // Endpoint para atualizar uma editora existente

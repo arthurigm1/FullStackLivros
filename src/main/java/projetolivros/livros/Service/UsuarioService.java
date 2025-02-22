@@ -75,7 +75,7 @@ public class UsuarioService {
             try {
                 mailService.sendVerificationEmail(user);
             } catch (MessagingException | UnsupportedEncodingException e) {
-                // Você pode lançar uma exceção personalizada aqui se quiser tratar o erro de e-mail
+
                 throw new RuntimeException("Erro ao enviar o e-mail de verificação", e);
             }
 
@@ -105,7 +105,7 @@ public class UsuarioService {
         Usuario usuario = userRepository.findByEmail(email);
 
             if (!passwordEncoder.matches(alterarSenhaDTO.getSenhaAtual(), usuario.getSenha())) {
-                return false; // Senha atual incorreta
+                return false;
             }
 
             usuario.setSenha(passwordEncoder.encode(alterarSenhaDTO.getNovaSenha()));

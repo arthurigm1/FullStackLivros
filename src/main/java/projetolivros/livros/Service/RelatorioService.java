@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import projetolivros.livros.Model.Endereco;
@@ -25,11 +26,12 @@ import java.util.*;
 public class RelatorioService {
 
     private final String jasperReportPath = "relatorios/pedido_report.jrxml"; // Ajuste o caminho correto
-
+    private final String jasperReportPedido = "relatorios/livros_subreport.jasper";
 
     private final PedidoRepository pedidoRepository;
 
 private final LivroPedidoRepository livroPedidoRepository;
+
 
     public byte[] gerarRelatorio(Long id) {
         try {
@@ -63,7 +65,7 @@ private final LivroPedidoRepository livroPedidoRepository;
             parameters.put("status", pedido.getStatus().toString());
 
             parameters.put("dataCadastro", dataFormatada); // Passando a data já formatada
-         //   parameters.put("livros", livros); // Passando os livros como parâmetro
+            //   parameters.put("livros", livros); // Passando os livros como parâmetro
 
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(Collections.singletonList(pedido));
 
@@ -75,7 +77,6 @@ private final LivroPedidoRepository livroPedidoRepository;
             throw new RuntimeException("Erro ao gerar o relatório: " + e.getMessage());
         }
     }
-
     public Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }

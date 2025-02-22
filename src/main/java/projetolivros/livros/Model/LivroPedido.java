@@ -14,15 +14,15 @@ import java.math.BigDecimal;
 public class LivroPedido {
 
     @EmbeddedId
-    private PedidoPk id;  // Chave composta
+    private PedidoPk id;
 
     @ManyToOne
     @JoinColumn(name = "pedido_id", insertable = false, updatable = false)
-    private Pedido pedido;  // Relacionamento com Pedido
+    private Pedido pedido;
 
     @ManyToOne
     @JoinColumn(name = "livro_id", insertable = false, updatable = false)
-    private Livro livro;  // Relacionamento com Livro (sem @JoinColumn aqui!)
+    private Livro livro;
 
     private Integer quantidade;
     private BigDecimal preco;

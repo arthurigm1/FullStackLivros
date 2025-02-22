@@ -33,7 +33,7 @@ public class FavoritoService {
         Favorito favorito = new Favorito();
         favorito.setUsuario(usuario);
         favorito.setLivro(livro);
-        return favoritoRepository.save(favorito); // Salva o favorito no banco de dados
+        return favoritoRepository.save(favorito);
     }
 
 
@@ -47,20 +47,20 @@ public class FavoritoService {
     public List<ResultadoLivroDto> listarLivrosFavoritos() {
         Usuario usuario = securityService.obterUsuarioLogado();
 
-        // Busca os favoritos do usuário
+
         List<Favorito> favoritos = Optional.ofNullable(favoritoRepository.findByUsuarioId(usuario.getId()))
                 .orElse(Collections.emptyList());
 
-        // Se não houver favoritos, retorna lista vazia
+
         if (favoritos.isEmpty()) {
             return Collections.emptyList();
         }
 
         return favoritos.stream()
-                .filter(favorito -> favorito.getLivro() != null) // Evita erros se o livro for nulo
+                .filter(favorito -> favorito.getLivro() != null)
                 .map(favorito -> {
                     Livro livro = favorito.getLivro();
-                    Autor autor = livro.getAutor(); // Pode ser null
+                    Autor autor = livro.getAutor();
 
                     return new ResultadoLivroDto(
                             livro.getId(),
@@ -79,7 +79,7 @@ public class FavoritoService {
                                     autor.getDescricao(),
                                     autor.getImg()
 
-                            ) : null // Se autor for nulo, passa null
+                            ) : null
                     );
                 })
                 .collect(Collectors.toList());

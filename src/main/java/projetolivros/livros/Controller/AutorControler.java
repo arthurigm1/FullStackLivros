@@ -39,11 +39,11 @@ public class AutorControler {
     public ResponseEntity<AutorDto> obterDetalhes(@PathVariable("id") String id) {
         var idAutor = UUID.fromString(id);
 
-        return service.findById(idAutor) // Busca o autor pelo ID, retornando um Optional<Autor>.
-                .map(autor -> { // Se o autor estiver presente, executa a conversão para DTO.
-                    AutorDto dto = mapper.toDto(autor); // Converte a entidade Autor para AutorDto.
-                    return ResponseEntity.ok(dto); // Retorna a resposta HTTP 200 (OK) com o DTO.
-                }).orElse(ResponseEntity.notFound().build()); // Se o autor não for encontrado, retorna HTTP 404 (Not Found).
+        return service.findById(idAutor)
+                .map(autor -> {
+                    AutorDto dto = mapper.toDto(autor);
+                    return ResponseEntity.ok(dto);
+                }).orElse(ResponseEntity.notFound().build());
 
 
     }

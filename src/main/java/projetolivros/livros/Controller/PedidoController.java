@@ -50,7 +50,17 @@ public class PedidoController {
                 .body(pdfBytes);
     }
 
-
+    @PostMapping("/{enderecoId}")
+    public ResponseEntity<String> criarPedido(@PathVariable UUID enderecoId) {
+        try {
+            String qrCodeUrl = pedidoService.criarPedido(enderecoId);
+            return ResponseEntity.ok(qrCodeUrl);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao gerar QR Code");
+        }
+    }
 
    /* @GetMapping("/{id}/relatorio")
     @ResponseStatus(HttpStatus.OK)

@@ -21,9 +21,9 @@ public class CarrinhoPk implements Serializable {
     @Column(name = "carrinho_id")
     private Long carrinhoId;
 
-    // Construtor público sem argumentos (necessário para Hibernate)
+
     public CarrinhoPk() {}
-    // Construtor com parâmetros
+
     public CarrinhoPk(UUID livroId, Long carrinhoId) {
         this.livroId = livroId;
         this.carrinhoId = carrinhoId;
