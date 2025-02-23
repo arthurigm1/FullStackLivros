@@ -21,6 +21,7 @@ import projetolivros.livros.Service.UsuarioService;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -57,18 +58,20 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@RequestBody @Valid RegisterRequestDTO body)
-            throws MessagingException, UnsupportedEncodingException {
-        Usuario user = this.repository.findByEmail(body.email());
-        if (user == null) {
-            Usuario newUser = usuarioMapper.toEntity(body);
+    public ResponseEntity register(@RequestBody RegisterRequestDTO body){
+        Optional<Usuario> user = Optional.ofNullable(this.repository.findByEmail(body.email()));
+
+        if(user.isEmpty()) {
+            Usuario newUser = new Usuario();
             newUser.setSenha(passwordEncoder.encode(body.senha()));
-            usuarioService.registerUser(newUser);
+            newUser.setEmail(body.email());
+            newUser.setNome(body.nome());
+            this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token, newUser.getId()));
+            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token,newUser.getId()));
         }
-        return ResponseEntity.badRequest().body(new ResponseDTO("Erro", "Email já cadastrado", null));
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/forgot-password")
