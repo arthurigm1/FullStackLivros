@@ -83,10 +83,8 @@ public class AuthController {
             response.put("error", "Usuário não encontrado.");
             return ResponseEntity.badRequest().body(response);
         }
-
         Map<String, String> response = new HashMap<>();
         response.put("message", "E-mail de recuperação enviado!");
-        // Remove qualquer token existente antes de criar um novo
         passwordResetTokenRepository.deleteByUsuarioId(usuario.getId());
 
         passwordResetService.enviarEmailRecuperacao(email);

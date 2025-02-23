@@ -26,8 +26,6 @@ public class PasswordResetService {
 
     public void enviarEmailRecuperacao(String email) {
         Usuario usuario = usuarioRepository.findByEmail(email);
-
-
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken();
         resetToken.setToken(token);
