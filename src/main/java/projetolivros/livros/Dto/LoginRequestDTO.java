@@ -1,3 +1,5 @@
 package projetolivros.livros.Dto;
 
-public record LoginRequestDTO (String email, String senha){}
+import jakarta.validation.constraints.NotBlank;
+
+public record LoginRequestDTO ( String email,  String senha){}

@@ -2,14 +2,12 @@ package projetolivros.livros.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import projetolivros.livros.Controller.Mapper.UsuarioMapper;
 import projetolivros.livros.Dto.LoginRequestDTO;
 import projetolivros.livros.Dto.RegisterRequestDTO;
 import projetolivros.livros.Dto.ResponseDTO;
@@ -66,10 +64,10 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso")
     @ApiResponse(responseCode = "400", description = "Usuário já existente")
     @PostMapping("/register")
-    public ResponseEntity<ResponseDTO> register(@RequestBody RegisterRequestDTO body) {
+    public ResponseEntity register( @RequestBody @Valid RegisterRequestDTO body){
         Optional<Usuario> user = Optional.ofNullable(this.repository.findByEmail(body.email()));
 
-        if (user.isEmpty()) {
+        if(user.isEmpty()) {
             Usuario newUser = new Usuario();
             newUser.setSenha(passwordEncoder.encode(body.senha()));
             newUser.setEmail(body.email());
@@ -77,7 +75,7 @@ public class AuthController {
             this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token, newUser.getId()));
+            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token,newUser.getId()));
         }
         return ResponseEntity.badRequest().build();
     }

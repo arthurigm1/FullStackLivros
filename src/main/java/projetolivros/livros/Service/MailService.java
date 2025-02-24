@@ -20,9 +20,9 @@ public class MailService {
 
     public void sendVerificationEmail(Usuario user) throws MessagingException, UnsupportedEncodingException {
         String toAddres = user.getEmail();
-        String fromAddres = "blockbitcompany@gmail.com";
-        String senderName = "Blockbit";
-        String subject = "Please verify your registration";
+        String fromAddres = "Pagiinova@gmail.com";
+        String senderName = "`Pagiinova`";
+        String subject = "Por favor confirme seu cadastro";
 
         String content = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                 "<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n" +
