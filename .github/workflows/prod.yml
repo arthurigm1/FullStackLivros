@@ -1,17 +1,10 @@
-name: Deploy Application Youtube
+name: Continuous Integration with Github Actions
 
 on:
-    push:
-        branches: [master]
-jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+  push:
+    branches: 
+      - main 
 
-            - name: Setup Java
-              uses: actions/setup-java@v3
-              with:
-                distribution: 'temurin'
-                java-version: '17'
+jobs:
+  build:
+    runs-on: ubuntu-latest
