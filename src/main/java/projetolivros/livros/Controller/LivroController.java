@@ -1,7 +1,9 @@
 package projetolivros.livros.Controller;
 
-
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,17 +14,16 @@ import projetolivros.livros.Dto.AtualizarLivroDto;
 import projetolivros.livros.Dto.CadastroLivroDto;
 import projetolivros.livros.Dto.ResultadoLivroDto;
 import projetolivros.livros.Model.Autor;
-
 import projetolivros.livros.Model.Enum.GeneroLivro;
 import projetolivros.livros.Model.Livro;
 import projetolivros.livros.Repository.AutorRepository;
-import projetolivros.livros.Security.SecurityService;
 import projetolivros.livros.Service.LivroService;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Tag(name = "Livros", description = "Gerenciamento de livros na biblioteca")
 @RestController
 @RequestMapping("livros")
 @RequiredArgsConstructor
@@ -32,32 +33,37 @@ public class LivroController {
     private final LivroMapper mapper;
     private final AutorRepository autorRepository;
 
+    @Operation(summary = "Cadastra um novo livro")
+    @ApiResponse(responseCode = "200", description = "Livro cadastrado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro do livro")
     @PostMapping
     @Transactional
     public ResponseEntity<Object> cadastrarLivro(@RequestBody @Valid CadastroLivroDto cadastroLivroDto) {
         Livro livro = mapper.toEntity(cadastroLivroDto);
         service.salvar(livro);
         return ResponseEntity.ok().build();
-
     }
+
+    @Operation(summary = "Obtém detalhes de um livro por ID")
+    @ApiResponse(responseCode = "200", description = "Detalhes do livro retornados com sucesso")
+    @ApiResponse(responseCode = "400", description = "ID inválido")
+    @ApiResponse(responseCode = "404", description = "Livro não encontrado")
     @GetMapping("{id}")
     public ResponseEntity<ResultadoLivroDto> obterDetalhes(@PathVariable("id") String id) {
         try {
             UUID livroId = UUID.fromString(id);
             return service.buscarPorId(livroId)
-                    .map(livro -> {
-                        var dto = mapper.toDTO(livro);
-                        return ResponseEntity.ok(dto);
-                    })
+                    .map(livro -> ResponseEntity.ok(mapper.toDTO(livro)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build(); // Retorna 400 se o ID não for um UUID válido
+            return ResponseEntity.badRequest().build();
         }
     }
 
-
+    @Operation(summary = "Deleta um livro por ID")
+    @ApiResponse(responseCode = "204", description = "Livro deletado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Livro não encontrado")
     @DeleteMapping("{id}")
-
     public ResponseEntity<Object> deletar(@PathVariable("id") String id) {
         return service.buscarPorId(UUID.fromString(id))
                 .map(livro -> {
@@ -66,6 +72,8 @@ public class LivroController {
                 }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "Pesquisa livros por diversos filtros")
+    @ApiResponse(responseCode = "200", description = "Lista de livros retornada com sucesso")
     @GetMapping("")
     public ResponseEntity<List<ResultadoLivroDto>> pesquisa(
             @RequestParam(value = "isbn", required = false) String isbn,
@@ -77,12 +85,7 @@ public class LivroController {
             @RequestParam(value = "preco-minimo", required = false) Double precoMinimo,
             @RequestParam(value = "preco-maximo", required = false) Double precoMaximo
     ) {
-
-
-        // Pesquisar livros com filtros
-        List<Livro> livrosResultado = service.pesquisaporFiltro(isbn, genero, anoPublicacao, titulo, nomeAutor,nomeEditora,precoMinimo,precoMaximo);
-
-        // Mapear a lista de livros para DTOs
+        List<Livro> livrosResultado = service.pesquisaporFiltro(isbn, genero, anoPublicacao, titulo, nomeAutor, nomeEditora, precoMinimo, precoMaximo);
         List<ResultadoLivroDto> resultado = livrosResultado.stream()
                 .map(mapper::toDTO)
                 .collect(Collectors.toList());
@@ -90,13 +93,15 @@ public class LivroController {
         return ResponseEntity.ok(resultado);
     }
 
-
+    @Operation(summary = "Atualiza os dados de um livro")
+    @ApiResponse(responseCode = "204", description = "Livro atualizado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Livro não encontrado")
     @PutMapping("{id}")
     public ResponseEntity<Object> atualizar(
-            @PathVariable("id") String id, @RequestBody @Valid AtualizarLivroDto dto) {
+            @Parameter(description = "ID do livro") @PathVariable("id") String id,
+            @RequestBody @Valid AtualizarLivroDto dto) {
         return service.buscarPorId(UUID.fromString(id))
                 .map(livro -> {
-                    // Atualiza apenas os campos que não são null
                     if (dto.getTitulo() != null) {
                         livro.setTitulo(dto.getTitulo());
                     }
@@ -119,7 +124,6 @@ public class LivroController {
                     }
 
                     service.atualizar(livro);
-
                     return ResponseEntity.noContent().build();
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());

@@ -1,6 +1,9 @@
 package projetolivros.livros.Controller;
 
-import jakarta.mail.MessagingException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,27 +21,26 @@ import projetolivros.livros.Security.TokenService;
 import projetolivros.livros.Service.PasswordResetService;
 import projetolivros.livros.Service.UsuarioService;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Tag(name = "Autenticação", description = "Endpoints para autenticação e gerenciamento de usuários")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
+
     private final UsuarioRepository repository;
     private final PasswordEncoder passwordEncoder;
     private final TokenService tokenService;
-    private final UsuarioMapper usuarioMapper;
     private final UsuarioService usuarioService;
     private final PasswordResetService passwordResetService;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
 
-    private final UsuarioRepository usuarioRepository;
-
-
-
+    @Operation(summary = "Realiza login do usuário")
+    @ApiResponse(responseCode = "200", description = "Login bem-sucedido")
+    @ApiResponse(responseCode = "400", description = "Usuário não encontrado ou senha incorreta")
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO> login(@RequestBody @Valid LoginRequestDTO body) {
         Usuario user = this.repository.findByEmail(body.email());
@@ -52,16 +54,22 @@ public class AuthController {
         return ResponseEntity.badRequest().body(new ResponseDTO("Erro", "Senha incorreta", null));
     }
 
+    @Operation(summary = "Verifica a conta do usuário por meio de um código de verificação")
+    @ApiResponse(responseCode = "200", description = "Conta verificada")
+    @ApiResponse(responseCode = "400", description = "Código inválido")
     @GetMapping("/verify")
     public String verifyUser(@RequestParam("code") String code) {
         return usuarioService.verify(code) ? "verify_success" : "verify_fail";
     }
 
+    @Operation(summary = "Registra um novo usuário")
+    @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Usuário já existente")
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegisterRequestDTO body){
+    public ResponseEntity<ResponseDTO> register(@RequestBody RegisterRequestDTO body) {
         Optional<Usuario> user = Optional.ofNullable(this.repository.findByEmail(body.email()));
 
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             Usuario newUser = new Usuario();
             newUser.setSenha(passwordEncoder.encode(body.senha()));
             newUser.setEmail(body.email());
@@ -69,11 +77,14 @@ public class AuthController {
             this.repository.save(newUser);
 
             String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token,newUser.getId()));
+            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token, newUser.getId()));
         }
         return ResponseEntity.badRequest().build();
     }
 
+    @Operation(summary = "Solicita recuperação de senha")
+    @ApiResponse(responseCode = "200", description = "E-mail de recuperação enviado")
+    @ApiResponse(responseCode = "400", description = "Usuário não encontrado")
     @PostMapping("/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
         String email = request.get("email");
@@ -91,17 +102,16 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Redefine a senha do usuário")
+    @ApiResponse(responseCode = "200", description = "Senha redefinida com sucesso")
+    @ApiResponse(responseCode = "400", description = "Token inválido ou expirado")
     @PostMapping("/reset-password")
     public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
         String token = request.get("token");
         String newPassword = request.get("password");
 
         PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
-                .orElseThrow(() -> {
-                    Map<String, String> errorResponse = new HashMap<>();
-                    errorResponse.put("error", "Token inválido ou expirado");
-                    return new RuntimeException("Token inválido ou expirado");
-                });
+                .orElseThrow(() -> new RuntimeException("Token inválido ou expirado"));
 
         Usuario usuario = resetToken.getUsuario();
         usuario.setSenha(passwordEncoder.encode(newPassword));
@@ -113,6 +123,4 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
-
-
 }

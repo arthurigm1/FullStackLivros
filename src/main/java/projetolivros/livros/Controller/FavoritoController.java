@@ -1,10 +1,12 @@
 package projetolivros.livros.Controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Dto.FavoritoRequestDto;
-import projetolivros.livros.Dto.LivroFavoritoDto;
 import projetolivros.livros.Dto.ResultadoLivroDto;
 import projetolivros.livros.Model.Livro;
 import projetolivros.livros.Model.Usuario;
@@ -14,45 +16,46 @@ import projetolivros.livros.Service.FavoritoService;
 
 import java.util.List;
 
+@Tag(name = "Favoritos", description = "Endpoints para gerenciamento de livros favoritos")
 @RestController
 @RequestMapping("/favoritos")
+@RequiredArgsConstructor
 public class FavoritoController {
-    @Autowired
-    private FavoritoService favoritoService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private LivroRepository livroRepository;
 
-    @PostMapping("")
+    private final FavoritoService favoritoService;
+    private final SecurityService securityService;
+    private final LivroRepository livroRepository;
+
+
+
+    @Operation(summary = "Adiciona um livro aos favoritos do usuário")
+    @ApiResponse(responseCode = "200", description = "Livro favoritado com sucesso")
+    @ApiResponse(responseCode = "404", description = "Livro não encontrado")
+    @PostMapping
     public ResponseEntity<Void> favoritarLivro(@RequestBody FavoritoRequestDto favoritoRequest) {
-        // Recupera o usuário logado através do serviço de segurança
-        Usuario usuario = securityService.obterUsuarioLogado(); // Esse método pega o usuário autenticado
-
-        // Encontra o livro pelo ID
+        Usuario usuario = securityService.obterUsuarioLogado();
         Livro livro = livroRepository.findById(favoritoRequest.getLivro())
                 .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
-
-        // Chama o serviço para favoritar o livro
         favoritoService.favoritarLivro(usuario, livro);
-
-        // Retorna a resposta de sucesso
         return ResponseEntity.ok().build();
     }
 
-
+    @Operation(summary = "Remove um livro dos favoritos do usuário")
+    @ApiResponse(responseCode = "200", description = "Livro removido dos favoritos com sucesso")
+    @ApiResponse(responseCode = "404", description = "Livro não encontrado")
     @PostMapping("/desfavoritar")
     public ResponseEntity<Void> desfavoritarLivro(@RequestBody FavoritoRequestDto favoritoRequest) {
-        Usuario usuarioId = securityService.obterUsuarioLogado();
+        Usuario usuario = securityService.obterUsuarioLogado();
         Livro livro = livroRepository.findById(favoritoRequest.getLivro())
                 .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
-        favoritoService.desfavoritarLivro(usuarioId, livro);
+        favoritoService.desfavoritarLivro(usuario, livro);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("")
+    @Operation(summary = "Lista os livros favoritados do usuário")
+    @ApiResponse(responseCode = "200", description = "Lista de livros favoritos retornada com sucesso")
+    @GetMapping
     public ResponseEntity<List<ResultadoLivroDto>> obterLivrosFavoritos() {
-
         return ResponseEntity.ok(favoritoService.listarLivrosFavoritos());
     }
 }
