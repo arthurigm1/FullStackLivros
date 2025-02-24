@@ -1,4 +1,5 @@
 name: Deploy Application CICD
+
 on:
     push:
         branches: [main]
@@ -9,4 +10,11 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v3
-              
+
+            - name: Setup Java
+              uses: actions/setup-java@v3
+              with:
+                distribution: 'temurin'
+                java-version: '17'
+            - name: Build project
+              run: mvn clean install -DskipTests
