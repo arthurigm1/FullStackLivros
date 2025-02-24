@@ -3,6 +3,7 @@ package projetolivros.livros.Controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Dto.LoginRequestDTO;
 import projetolivros.livros.Dto.RegisterRequestDTO;
 import projetolivros.livros.Dto.ResponseDTO;
+import projetolivros.livros.Exceptions.RegistroException;
 import projetolivros.livros.Model.PasswordResetToken;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.PasswordResetTokenRepository;
@@ -19,6 +21,7 @@ import projetolivros.livros.Security.TokenService;
 import projetolivros.livros.Service.PasswordResetService;
 import projetolivros.livros.Service.UsuarioService;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -64,27 +67,22 @@ public class AuthController {
     @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso")
     @ApiResponse(responseCode = "400", description = "Usuário já existente")
     @PostMapping("/register")
-    public ResponseEntity register( @RequestBody @Valid RegisterRequestDTO body){
-        Optional<Usuario> user = Optional.ofNullable(this.repository.findByEmail(body.email()));
-
-        if(user.isEmpty()) {
-            Usuario newUser = new Usuario();
-            newUser.setSenha(passwordEncoder.encode(body.senha()));
-            newUser.setEmail(body.email());
-            newUser.setNome(body.nome());
-            this.repository.save(newUser);
-
-            String token = this.tokenService.generateToken(newUser);
-            return ResponseEntity.ok(new ResponseDTO(newUser.getNome(), token,newUser.getId()));
+    public ResponseEntity<ResponseDTO> register(@RequestBody @Valid RegisterRequestDTO body) {
+        try {
+            ResponseDTO response = usuarioService.registerUser(body);
+            return ResponseEntity.ok(response);
+        } catch (RegistroException e) {
+            return ResponseEntity.badRequest().body(new ResponseDTO(e.getMessage(), null, null));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ResponseDTO("Erro interno no servidor", null, null));
         }
-        return ResponseEntity.badRequest().build();
     }
 
     @Operation(summary = "Solicita recuperação de senha")
     @ApiResponse(responseCode = "200", description = "E-mail de recuperação enviado")
     @ApiResponse(responseCode = "400", description = "Usuário não encontrado")
     @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) throws MessagingException, UnsupportedEncodingException {
         String email = request.get("email");
         Usuario usuario = repository.findByEmail(email);
         if (usuario == null) {

@@ -1,14 +1,18 @@
 package projetolivros.livros.Service;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import projetolivros.livros.Model.PasswordResetToken;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.PasswordResetTokenRepository;
 import projetolivros.livros.Repository.UsuarioRepository;
 
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -23,8 +27,8 @@ public class PasswordResetService {
 
     @Autowired
     private JavaMailSender mailSender;
-
-    public void enviarEmailRecuperacao(String email) {
+    private String verifyURL = "https://pagiinova.netlify.app/reset-password?token=";
+    public void enviarEmailRecuperacao(String email) throws MessagingException, UnsupportedEncodingException {
         Usuario usuario = usuarioRepository.findByEmail(email);
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken();
@@ -35,7 +39,7 @@ public class PasswordResetService {
         tokenRepository.save(resetToken);
 
         String resetLink = "http://localhost:4200/reset-password?token=" + token;
-        enviarEmail(usuario.getEmail(), "Redefinição de Senha", "Clique no link para redefinir sua senha: " + resetLink);
+      //  enviarEmail(usuario.getEmail(), "Redefinição de Senha", "Clique no link para redefinir sua senha: " + resetLink);
         String toAddres = email;
         String fromAddres = "Pagiinova@gmail.com";
         String senderName = "`Pagiinova`";
@@ -250,7 +254,7 @@ public class PasswordResetService {
                 "                            <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Cabin',sans-serif;\" align=\"left\">\n" +
                 "\n" +
                 "                              <div style=\"font-size: 14px; color: #e5eaf5; line-height: 140%; text-align: center; word-wrap: break-word;\">\n" +
-                "                                <p style=\"font-size: 14px; line-height: 140%;\"><strong>Muito obrigado por se registrar</strong></p>\n" +
+                "                                <p style=\"font-size: 14px; line-height: 140%;\"><strong>Efetua sua nova senha!</strong></p>\n" +
                 "                              </div>\n" +
                 "\n" +
                 "                            </td>\n" +
@@ -264,7 +268,7 @@ public class PasswordResetService {
                 "                            <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 10px 31px;font-family:'Cabin',sans-serif;\" align=\"left\">\n" +
                 "\n" +
                 "                              <div style=\"font-size: 14px; color: #e5eaf5; line-height: 140%; text-align: center; word-wrap: break-word;\">\n" +
-                "                                <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 28px; line-height: 39.2px;\"><strong><span style=\"line-height: 39.2px; font-size: 28px;\">Verifique o seu e-mail</span></strong>\n" +
+                "                                <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 28px; line-height: 39.2px;\"><strong><span style=\"line-height: 39.2px; font-size: 28px;\">Clique aqui para Resetar sua Senha</span></strong>\n" +
                 "                                  </span>\n" +
                 "                                </p>\n" +
                 "                              </div>\n" +
@@ -308,7 +312,7 @@ public class PasswordResetService {
                 "\n" +
                 "                              <div style=\"font-size: 14px; line-height: 160%; text-align: center; word-wrap: break-word;\">\n" +
                 "                                <p style=\"font-size: 14px; line-height: 160%;\"><span style=\"font-size: 22px; line-height: 35.2px;\">Olá [[NAME]], </span></p>\n" +
-                "                                <p style=\"font-size: 14px; line-height: 160%;\"><span style=\"font-size: 18px; line-height: 28.8px;\">Você inicou a criação da sua conta mas falta um ultimo passo! Clique no botão abaixo e confirme o seu registro</span></p>\n" +
+                "                                <p style=\"font-size: 14px; line-height: 160%;\"><span style=\"font-size: 18px; line-height: 28.8px;\">Você inicou a recuperacao da sua senha seu token e valido por 1 hora!</span></p>\n" +
                 "                              </div>\n" +
                 "\n" +
                 "                            </td>\n" +
@@ -325,7 +329,7 @@ public class PasswordResetService {
                 "                              <div align=\"center\">\n" +
                 "                                <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"[[URL]]\" style=\"height:46px; v-text-anchor:middle; width:219px;\" arcsize=\"8.5%\"  stroke=\"f\" fillcolor=\"#ff6600\"><w:anchorlock/><center style=\"color:#FFFFFF;\"><![endif]-->\n" +
                 "                                <a href=\"[[URL]]\" target=\"_blank\" class=\"v-button\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #ff6600; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n" +
-                "                                  <span style=\"display:block;padding:14px 44px 13px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong><span style=\"line-height: 19.2px; font-size: 16px;\">Verifique seu email</span></strong>\n" +
+                "                                  <span style=\"display:block;padding:14px 44px 13px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong><span style=\"line-height: 19.2px; font-size: 16px;\">Crie uma nova senha</span></strong>\n" +
                 "                                  </span>\n" +
                 "                                  </span>\n" +
                 "                                </a>\n" +
@@ -428,6 +432,23 @@ public class PasswordResetService {
                 "</body>\n" +
                 "\n" +
                 "</html>";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(fromAddres, senderName);
+        helper.setTo(toAddres);
+        helper.setSubject(subject);
+
+        content = content.replace("[[NAME]]", usuario.getNome());
+
+        String verifyURL = this.verifyURL + token;
+
+        content = content.replace("[[URL]]", verifyURL);
+
+        helper.setText(content, true);
+
+        mailSender.send(message);
     }
 
     private void enviarEmail(String to, String subject, String content) {

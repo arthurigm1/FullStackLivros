@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import projetolivros.livros.Dto.AlterarSenhadto;
 import projetolivros.livros.Dto.RegisterRequestDTO;
 
+import projetolivros.livros.Dto.ResponseDTO;
 import projetolivros.livros.Dto.UsuarioAtualizardto;
 import projetolivros.livros.Exceptions.RegistroException;
 import projetolivros.livros.Model.Usuario;
@@ -56,33 +57,38 @@ public class UsuarioService {
 
         return null;
     }
-    public RegisterRequestDTO registerUser(Usuario user) throws UnsupportedEncodingException, MessagingException {
-        if (userRepository.findByEmail(user.getEmail()) != null) {
+
+    public ResponseDTO registerUser(RegisterRequestDTO body) throws UnsupportedEncodingException, MessagingException {
+        // Verifica se o e-mail já está cadastrado
+        Optional<Usuario> existingUser = Optional.ofNullable(userRepository.findByEmail(body.email()));
+        if (existingUser.isPresent()) {
             throw new RegistroException("Este e-mail já está cadastrado.");
-        } else {
-
-            String randomCode = RandomString.generateRandomString(64);
-            user.setVerificationCode(randomCode);
-            user.setEnabled(false);
-
-            Usuario savedUser = userRepository.save(user);
-
-            RegisterRequestDTO userResponse = new RegisterRequestDTO(
-                    savedUser.getNome(),
-                    savedUser.getEmail(),
-                    savedUser.getPassword());
-
-            try {
-                mailService.sendVerificationEmail(user);
-            } catch (MessagingException | UnsupportedEncodingException e) {
-
-                throw new RuntimeException("Erro ao enviar o e-mail de verificação", e);
-            }
-
-            return userResponse;
         }
-    }
 
+        // Criando o usuário
+        Usuario newUser = new Usuario();
+        newUser.setNome(body.nome());
+        newUser.setEmail(body.email());
+        newUser.setSenha(passwordEncoder.encode(body.senha()));
+
+        // Gerando código de verificação
+        String randomCode = RandomString.generateRandomString(64);
+        newUser.setVerificationCode(randomCode);
+        newUser.setEnabled(false);
+
+        // Salvando no banco de dados
+        Usuario savedUser = userRepository.save(newUser);
+
+        // Enviar e-mail de verificação
+        try {
+            mailService.sendVerificationEmail(savedUser);
+        } catch (MessagingException | UnsupportedEncodingException e) {
+            throw new RuntimeException("Erro ao enviar o e-mail de verificação", e);
+        }
+
+        // Retorna um DTO adequado
+        return new ResponseDTO(savedUser.getNome(), null, savedUser.getId());
+    }
     public Usuario obterPorEmail(String email) {
         return userRepository.findByEmail(email);
     }
