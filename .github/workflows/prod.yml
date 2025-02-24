@@ -1,15 +1,24 @@
-name: Continuous Integration with Github Actions
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: 
-      - main 
+    branches:
+      - main  
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-
     steps:
-    - name: Analisar o Código
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17' 
+
+      - name: Build with Maven
+        run: mvn clean install -DskipTests
+      
+      
