@@ -16,7 +16,7 @@ public class MailService {
     @Autowired
     private JavaMailSender emailSender;
 
-    private String verifyURL = "https://pagiinova.netlify.app/reset-password?token=";
+    private String verifyURL = "https://pagiinova.netlify.app/verify?token=";
 
     public void sendVerificationEmail(Usuario user) throws MessagingException, UnsupportedEncodingException {
         String toAddres = user.getEmail();
