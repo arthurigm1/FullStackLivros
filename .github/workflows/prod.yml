@@ -1,9 +1,8 @@
-name: Deploy Application CICD
+name: Deploy Application Youtube
 
 on:
     push:
         branches: [main]
-
 jobs:
     build:
         runs-on: ubuntu-latest
@@ -16,5 +15,3 @@ jobs:
               with:
                 distribution: 'temurin'
                 java-version: '17'
-            - name: Build project
-              run: mvn clean install -DskipTests
