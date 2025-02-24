@@ -8,12 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
 
-            - name: Setup Java
-              uses: actions/setup-java@v3
-              with:
-                distribution: 'temurin'
-                java-version: '17'
+
+    steps:
+    - name: Analisar o Código
+      uses: actions/checkout@v3
