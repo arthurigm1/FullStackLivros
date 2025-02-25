@@ -29,7 +29,7 @@ public class PedidoController {
     @Operation(summary = "Gerar relatório do pedido", description = "Gera um relatório em PDF para um pedido específico.")
     @GetMapping("/{id}/relatorio")
     public ResponseEntity<byte[]> gerarRelatorio(@PathVariable Long id) {
-        byte[] pdfBytes = relatorioService.gerarRelatorio(id);
+        byte[] pdfBytes = relatorioService.gerarRelatorio2(id);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)

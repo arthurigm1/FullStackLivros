@@ -1,5 +1,8 @@
 package projetolivros.livros.Service;
 
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.properties.TextAlignment;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.*;
@@ -7,13 +10,19 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.util.JRLoader;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
-import projetolivros.livros.Model.Endereco;
-import projetolivros.livros.Model.Livro;
-import projetolivros.livros.Model.Pedido;
-import projetolivros.livros.Model.Usuario;
+import projetolivros.livros.Model.*;
 import projetolivros.livros.Repository.LivroPedidoRepository;
 import projetolivros.livros.Repository.PedidoRepository;
-
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.kernel.colors.ColorConstants;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.font.PdfFont;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -72,6 +81,108 @@ private final LivroPedidoRepository livroPedidoRepository;
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters,dataSource);
 
             return JasperExportManager.exportReportToPdf(jasperPrint);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar o relatório: " + e.getMessage());
+        }
+    }
+
+    public byte[] gerarRelatorio2(Long id) {
+        try {
+            Pedido pedido = pedidoRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
+
+            Usuario usuario = pedido.getUsuario();
+            Endereco endereco = pedido.getEndereco();
+
+
+            List<Livro> livros = livroPedidoRepository.findLivrosByPedidoId(pedido.getId());
+
+            // Criando o byte array output stream para o PDF
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            PdfWriter writer = new PdfWriter(byteArrayOutputStream);
+            PdfDocument pdfDocument = new PdfDocument(writer);
+            Document document = new Document(pdfDocument);
+
+            Image img = new Image(ImageDataFactory.create("C:\\Users\\arthu\\OneDrive\\Documentos\\Projetos_java\\livros\\src\\main\\resources\\templates\\pagiinova.png")); // Caminho da imagem
+            img.setWidth(200);
+            img.setHeight(80);
+            document.add(img);
+
+            Paragraph title = new Paragraph("Relatório do Pedido")
+                    .setFontSize(20)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontColor(ColorConstants.DARK_GRAY);
+            document.add(title);
+
+            // Adicionando dados do usuário e do pedido
+            document.add(new Paragraph("Usuário: " + usuario.getNome())
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setFontColor(ColorConstants.BLACK));
+
+            document.add(new Paragraph("Endereço: " + endereco.getLogradouro() + ", " + endereco.getBairro() + " - " + endereco.getLocalidade())
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setFontColor(ColorConstants.BLACK));
+
+            document.add(new Paragraph("ID do Pedido: " + pedido.getId())
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setFontColor(ColorConstants.BLACK));
+
+            document.add(new Paragraph("Valor Total: R$ " + pedido.getValorTotal())
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setFontColor(ColorConstants.BLACK));
+
+            document.add(new Paragraph("Status: " + pedido.getStatus().toString())
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setFontColor(ColorConstants.BLACK));
+
+            // Adicionando data de cadastro
+            String dataFormatada = (pedido.getDataCadastro() != null)
+                    ? pedido.getDataCadastro().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                    : "Data não disponível";
+            document.add(new Paragraph("Data de Cadastro: " + dataFormatada)
+                    .setFontSize(12)
+                    .setTextAlignment(TextAlignment.LEFT)
+                    .setFontColor(ColorConstants.BLACK));
+
+            // Adicionando uma linha horizontal
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("------------------------------------------------------------"));
+
+            // Adicionando os livros em uma tabela
+            Table table = new Table(3);
+            table.addHeaderCell(new Cell().add(new Paragraph("Livro")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+            table.addHeaderCell(new Cell().add(new Paragraph("Autor")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+            table.addHeaderCell(new Cell().add(new Paragraph("Quantidade")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+
+            // Preenchendo os dados da tabela com os livros
+            for (Livro livro : livros) {
+                Optional<LivroPedido> livroPedido = livroPedidoRepository.findByPedidoAndLivro(pedido, livro);
+                int quantidade = livroPedido.get().getQuantidade();
+
+
+                table.addCell(livro.getTitulo()).setTextAlignment(TextAlignment.LEFT);
+                table.addCell(String.valueOf(livro.getPreco())).setTextAlignment(TextAlignment.CENTER);
+                table.addCell(String.valueOf(quantidade)).setTextAlignment(TextAlignment.CENTER);
+            }
+
+            document.add(table);
+
+            // Adicionando uma linha horizontal
+            document.add(new Paragraph("\n"));
+            document.add(new Paragraph("------------------------------------------------------------"));
+
+            // Fechar o documento
+            document.close();
+
+            // Retornando o PDF como byte array
+            return byteArrayOutputStream.toByteArray();
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar o relatório: " + e.getMessage());

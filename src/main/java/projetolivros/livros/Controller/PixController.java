@@ -35,4 +35,17 @@ public class PixController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(response.toString());
     }
+
+    @GetMapping("/verificar/{txid}")
+    public ResponseEntity<String> verificarPagamento(@PathVariable String txid) {
+        JSONObject resposta = pixService.verificarPagamento(txid);
+        return ResponseEntity.ok(resposta.toString());
+    }
+
+    @GetMapping("/verificarid/{id}")
+    public ResponseEntity<String> verificarId(@PathVariable String id) {
+        // Chama o método verificarid no serviço e retorna a resposta
+        JSONObject resposta =  pixService.verificarid(id);
+        return ResponseEntity.ok(resposta.toString());
+    }
 }

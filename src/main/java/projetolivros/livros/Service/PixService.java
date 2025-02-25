@@ -116,4 +116,45 @@ public class PixService {
 
         return options;
     }
+
+    public JSONObject verificarPagamento(String txid) {
+        JSONObject options = configuringJsonObject();
+        HashMap<String, String> params = new HashMap<>();
+        params.put("txid", txid);
+        try {
+            EfiPay efi = new EfiPay(options);
+            return efi.call("pixDetailCharge", params, new JSONObject());
+        } catch (EfiPayException e) {
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("error", e.getError());
+            errorResponse.put("description", e.getErrorDescription());
+            return errorResponse;
+        } catch (Exception e) {
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("error", "Erro inesperado");
+            errorResponse.put("description", e.getMessage());
+            return errorResponse;
+        }
+    }
+
+    public JSONObject verificarid(String id) {
+        JSONObject options = configuringJsonObject();
+        HashMap<String, String> params = new HashMap<>();
+        params.put("id", id);
+        try {
+            EfiPay efi = new EfiPay(options);
+            JSONObject response =  efi.call("pixDetailLocation", params, new JSONObject());
+            return  response;
+        } catch (EfiPayException e) {
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("error", e.getError());
+            errorResponse.put("description", e.getErrorDescription());
+            return errorResponse;
+        } catch (Exception e) {
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.put("error", "Erro inesperado");
+            errorResponse.put("description", e.getMessage());
+            return errorResponse;
+        }
+    }
 }
