@@ -87,6 +87,7 @@ private final LivroPedidoRepository livroPedidoRepository;
         }
     }
 
+
     public byte[] gerarRelatorio2(Long id) {
         try {
             Pedido pedido = pedidoRepository.findById(id)
@@ -94,21 +95,23 @@ private final LivroPedidoRepository livroPedidoRepository;
 
             Usuario usuario = pedido.getUsuario();
             Endereco endereco = pedido.getEndereco();
-
-
             List<Livro> livros = livroPedidoRepository.findLivrosByPedidoId(pedido.getId());
 
-            // Criando o byte array output stream para o PDF
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PdfWriter writer = new PdfWriter(byteArrayOutputStream);
             PdfDocument pdfDocument = new PdfDocument(writer);
             Document document = new Document(pdfDocument);
 
-            Image img = new Image(ImageDataFactory.create("C:\\Users\\arthu\\OneDrive\\Documentos\\Projetos_java\\livros\\src\\main\\resources\\templates\\pagiinova.png")); // Caminho da imagem
-            img.setWidth(200);
-            img.setHeight(80);
-            document.add(img);
+            // Adicionando imagem do logo
+            InputStream imageStream = getClass().getResourceAsStream("/templates/pagiinova.png");
+            if (imageStream != null) {
+                Image img = new Image(ImageDataFactory.create(imageStream.readAllBytes()));
+                img.setWidth(200);
+                img.setHeight(80);
+                document.add(img);
+            }
 
+            // Título
             Paragraph title = new Paragraph("Relatório do Pedido")
                     .setFontSize(20)
                     .setBold()
@@ -116,78 +119,48 @@ private final LivroPedidoRepository livroPedidoRepository;
                     .setFontColor(ColorConstants.DARK_GRAY);
             document.add(title);
 
-            // Adicionando dados do usuário e do pedido
-            document.add(new Paragraph("Usuário: " + usuario.getNome())
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontColor(ColorConstants.BLACK));
+            // Dados do usuário e do pedido
+            document.add(new Paragraph("Usuário: " + usuario.getNome()).setFontSize(12));
+            document.add(new Paragraph("Endereço: " + endereco.getLogradouro() + ", " + endereco.getBairro() + " - " + endereco.getLocalidade()).setFontSize(12));
+            document.add(new Paragraph("ID do Pedido: " + pedido.getId()).setFontSize(12));
+            document.add(new Paragraph("Valor Total: R$ " + pedido.getValorTotal()).setFontSize(12));
+            document.add(new Paragraph("Status: " + pedido.getStatus().toString()).setFontSize(12));
 
-            document.add(new Paragraph("Endereço: " + endereco.getLogradouro() + ", " + endereco.getBairro() + " - " + endereco.getLocalidade())
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontColor(ColorConstants.BLACK));
-
-            document.add(new Paragraph("ID do Pedido: " + pedido.getId())
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontColor(ColorConstants.BLACK));
-
-            document.add(new Paragraph("Valor Total: R$ " + pedido.getValorTotal())
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontColor(ColorConstants.BLACK));
-
-            document.add(new Paragraph("Status: " + pedido.getStatus().toString())
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontColor(ColorConstants.BLACK));
-
-            // Adicionando data de cadastro
+            // Data de Cadastro
             String dataFormatada = (pedido.getDataCadastro() != null)
                     ? pedido.getDataCadastro().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                     : "Data não disponível";
-            document.add(new Paragraph("Data de Cadastro: " + dataFormatada)
-                    .setFontSize(12)
-                    .setTextAlignment(TextAlignment.LEFT)
-                    .setFontColor(ColorConstants.BLACK));
+            document.add(new Paragraph("Data de Cadastro: " + dataFormatada).setFontSize(12));
 
-            // Adicionando uma linha horizontal
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph("------------------------------------------------------------"));
+            document.add(new Paragraph("\n------------------------------------------------------------\n"));
 
-            // Adicionando os livros em uma tabela
+            // Tabela de livros
             Table table = new Table(3);
             table.addHeaderCell(new Cell().add(new Paragraph("Livro")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
             table.addHeaderCell(new Cell().add(new Paragraph("Autor")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
             table.addHeaderCell(new Cell().add(new Paragraph("Quantidade")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
 
-            // Preenchendo os dados da tabela com os livros
             for (Livro livro : livros) {
-                Optional<LivroPedido> livroPedido = livroPedidoRepository.findByPedidoAndLivro(pedido, livro);
-                int quantidade = livroPedido.get().getQuantidade();
+                Optional<LivroPedido> livroPedidoOpt = livroPedidoRepository.findByPedidoAndLivro(pedido, livro);
+                int quantidade = livroPedidoOpt.map(LivroPedido::getQuantidade).orElse(0);
 
-
-                table.addCell(livro.getTitulo()).setTextAlignment(TextAlignment.LEFT);
-                table.addCell(String.valueOf(livro.getPreco())).setTextAlignment(TextAlignment.CENTER);
-                table.addCell(String.valueOf(quantidade)).setTextAlignment(TextAlignment.CENTER);
+                table.addCell(new Cell().add(new Paragraph(livro.getTitulo())));
+                table.addCell(new Cell().add(new Paragraph(String.valueOf(livro.getPreco()))));
+                table.addCell(new Cell().add(new Paragraph(String.valueOf(quantidade))));
             }
 
             document.add(table);
-
-            // Adicionando uma linha horizontal
-            document.add(new Paragraph("\n"));
-            document.add(new Paragraph("------------------------------------------------------------"));
+            document.add(new Paragraph("\n------------------------------------------------------------"));
 
             // Fechar o documento
             document.close();
 
-            // Retornando o PDF como byte array
             return byteArrayOutputStream.toByteArray();
-
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar o relatório: " + e.getMessage());
         }
     }
+
     public Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
