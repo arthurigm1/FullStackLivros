@@ -14,7 +14,9 @@ import projetolivros.livros.Repository.PedidoRepository;
 import projetolivros.livros.Security.SecurityService;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -78,7 +80,7 @@ public class PedidoService {
         }).collect(Collectors.toList()); // Corrigido para retornar a lista de PedidoDto
     }
 
-    public String criarPedido(UUID enderecoid) {
+    public Map<String, String> criarPedido(UUID enderecoid) {
         // Obter o usuário logado
         Usuario usuario = securityService.obterUsuarioLogado();
 
@@ -96,61 +98,67 @@ public class PedidoService {
             throw new IllegalArgumentException("Carrinho contém itens inválidos.");
         }
 
-        // Criar o pedido e associar o endereço recebido
-        Pedido pedido = new Pedido();
-        pedido.setStatus(StatusPedido.AGUARDANDO_PAGAMENTO);
-        pedido.setUsuario(usuario);
+        // Buscar o endereço do pedido
         Endereco endereco = enderecoRepository.findById(enderecoid)
                 .orElseThrow(() -> new IllegalArgumentException("Endereço não encontrado"));
-
-        pedido.setEndereco(endereco);
-
 
         // Calcular o valor total do pedido
         BigDecimal valorTotal = carrinho.getItems().stream()
                 .map(item -> item.getPreco().multiply(BigDecimal.valueOf(item.getQuantidade())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        pedido.setValorTotal(valorTotal);
-
-        // Salvar o pedido primeiro para garantir que o ID seja gerado
-        Pedido pedidoSalvo = pedidoRepository.save(pedido);
-
-        // Criar os itens do pedido
-        List<LivroPedido> itensDoPedido = carrinho.getItems().stream()
-                .map(item -> {
-                    LivroPedido livroPedido = new LivroPedido();
-                    PedidoPk pedidoPk = new PedidoPk();
-                    pedidoPk.setPedidoId(pedidoSalvo.getId());
-                    pedidoPk.setLivroId(item.getLivro().getId());
-
-                    livroPedido.setId(pedidoPk);
-                    livroPedido.setLivro(item.getLivro());
-                    livroPedido.setQuantidade(item.getQuantidade());
-                    livroPedido.setPreco(item.getPreco());
-                    livroPedido.setPedido(pedidoSalvo);
-
-                    return livroPedido;
-                })
-                .collect(Collectors.toList());
-
-        // Atribuir os itens ao pedido e salvar
-        pedidoSalvo.setLivros(itensDoPedido);
-        pedidoRepository.save(pedidoSalvo);
-
         // Criar a requisição de pagamento via Pix
         PixChargeRequest pixChargeRequest = new PixChargeRequest("a3438546-659f-47f0-b07e-4e168ede19a2", valorTotal.toString());
         var response = pixService.pixCreateCharge(pixChargeRequest);
 
-        if (response != null && response.getJSONObject("loc").has("id")) {
+        // Verificar se o pagamento foi gerado com sucesso
+        if (response != null && response.getJSONObject("loc").has("id") && response.has("pixCopiaECola")) {
             int idFromJson = response.getJSONObject("loc").getInt("id");
+            String pixCopiaECola = response.getString("pixCopiaECola");
             String qrCodeUrl = pixService.pixGenerateQRCode(String.valueOf(idFromJson));
+
+            // Criar e salvar o pedido apenas após a geração bem-sucedida do QR Code
+            Pedido pedido = new Pedido();
+            pedido.setStatus(StatusPedido.AGUARDANDO_PAGAMENTO);
+            pedido.setUsuario(usuario);
+            pedido.setEndereco(endereco);
+            pedido.setValorTotal(valorTotal);
+
+            // Salvar pedido no banco para gerar o ID
+            Pedido pedidoSalvo = pedidoRepository.save(pedido);
+
+            // Criar os itens do pedido
+            List<LivroPedido> itensDoPedido = carrinho.getItems().stream()
+                    .map(item -> {
+                        LivroPedido livroPedido = new LivroPedido();
+                        PedidoPk pedidoPk = new PedidoPk();
+                        pedidoPk.setPedidoId(pedidoSalvo.getId());
+                        pedidoPk.setLivroId(item.getLivro().getId());
+
+                        livroPedido.setId(pedidoPk);
+                        livroPedido.setLivro(item.getLivro());
+                        livroPedido.setQuantidade(item.getQuantidade());
+                        livroPedido.setPreco(item.getPreco());
+                        livroPedido.setPedido(pedidoSalvo);
+
+                        return livroPedido;
+                    })
+                    .collect(Collectors.toList());
+
+            // Associar os itens ao pedido e salvar
+            pedidoSalvo.setLivros(itensDoPedido);
+            pedidoRepository.save(pedidoSalvo);
 
             // Limpar o carrinho após a finalização do pedido
             carrinho.getItems().clear();
             carrinhoRepository.save(carrinho);
 
-            return qrCodeUrl;
+            // Retornar o QR Code e Pix Copia e Cola
+            Map<String, String> responseMap = new HashMap<>();
+            responseMap.put("qrCodeUrl", qrCodeUrl);
+            responseMap.put("pixCopiaECola", pixCopiaECola);
+            return responseMap;
+
         } else {
             throw new IllegalStateException("Erro ao gerar QR Code: resposta do Pix inválida");
         }

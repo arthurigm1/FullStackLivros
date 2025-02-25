@@ -14,6 +14,7 @@ import projetolivros.livros.Service.PedidoService;
 import projetolivros.livros.Service.RelatorioService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,14 +39,15 @@ public class PedidoController {
 
     @Operation(summary = "Criar um novo pedido", description = "Cria um pedido com base no endereço informado e retorna um QR Code para pagamento.")
     @PostMapping("/{enderecoId}")
-    public ResponseEntity<String> criarPedido(@PathVariable UUID enderecoId) {
+    public ResponseEntity<Map<String, String>> criarPedido(@PathVariable UUID enderecoId) {
         try {
-            String qrCodeUrl = pedidoService.criarPedido(enderecoId);
-            return ResponseEntity.ok(qrCodeUrl);
+            Map<String, String> response = pedidoService.criarPedido(enderecoId);
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("erro", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao gerar QR Code");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("erro", "Erro ao gerar QR Code"));
         }
     }
 
