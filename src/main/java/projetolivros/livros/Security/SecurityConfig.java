@@ -57,6 +57,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/editoras/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/avaliacoes/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/avaliacoes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/livros/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
 
                 )

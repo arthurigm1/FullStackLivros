@@ -6,7 +6,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Role;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Controller.Mapper.LivroMapper;
@@ -49,6 +51,7 @@ public class LivroController {
     @ApiResponse(responseCode = "400", description = "ID inválido")
     @ApiResponse(responseCode = "404", description = "Livro não encontrado")
     @GetMapping("{id}")
+
     public ResponseEntity<ResultadoLivroDto> obterDetalhes(@PathVariable("id") String id) {
         try {
             UUID livroId = UUID.fromString(id);

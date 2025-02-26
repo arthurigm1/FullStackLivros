@@ -11,8 +11,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import projetolivros.livros.Model.Enum.RoleName;
+
+import projetolivros.livros.Model.Enum.UsuarioRole;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -50,21 +52,8 @@ public class Usuario implements UserDetails {
     private String verificationCode;
 
     private boolean enabled;
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
-    }
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "usuario_roles",
-            joinColumns = @JoinColumn(name = "usuario_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
 
-   /* @Type(ListArrayType.class)
-    @Column(name = "roles", columnDefinition = "varchar[]")
-    private List<String> roles;
-*/
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Livro> livros;
 
@@ -85,9 +74,21 @@ public class Usuario implements UserDetails {
     @JsonManagedReference
     private List<Pedido> pedidos;
 
+    @Enumerated(EnumType.STRING)
+    private UsuarioRole role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.role == UsuarioRole.ADMIN) {
+            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        }
+            return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+    }
+
     @Override
     public String getPassword() {
-        return senha;
+        return null;
     }
 
     @Override
@@ -95,5 +96,18 @@ public class Usuario implements UserDetails {
         return email;
     }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
 
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
 }

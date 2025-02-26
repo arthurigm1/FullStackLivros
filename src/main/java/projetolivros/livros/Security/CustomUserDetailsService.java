@@ -2,6 +2,7 @@ package projetolivros.livros.Security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,6 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Service.UsuarioService;
+
+import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(usuario.getEmail())
                 .password(usuario.getSenha())
-                .authorities(usuario.getAuthorities())
+                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRole().name())))
                 .build();
     }
 }

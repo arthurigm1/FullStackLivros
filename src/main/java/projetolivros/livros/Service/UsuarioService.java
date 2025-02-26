@@ -2,7 +2,6 @@ package projetolivros.livros.Service;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import projetolivros.livros.Dto.AlterarSenhadto;
@@ -11,14 +10,9 @@ import projetolivros.livros.Dto.RegisterRequestDTO;
 import projetolivros.livros.Dto.ResponseDTO;
 import projetolivros.livros.Dto.UsuarioAtualizardto;
 import projetolivros.livros.Exceptions.RegistroException;
-import projetolivros.livros.Model.Enum.RoleName;
-import projetolivros.livros.Model.Role;
 import projetolivros.livros.Model.Usuario;
-import projetolivros.livros.Repository.RoleRepository;
 import projetolivros.livros.Repository.UsuarioRepository;
 import projetolivros.livros.Security.AuthenticatedUserProvider;
-import projetolivros.livros.Security.PasswordEncoderConfig;
-import projetolivros.livros.Security.SecurityService;
 import projetolivros.livros.Utill.RandomString;
 
 import java.io.UnsupportedEncodingException;
@@ -33,7 +27,7 @@ public class UsuarioService {
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticatedUserProvider authenticatedUserProvider;
-    private final RoleRepository roleRepository;
+
 
     public Usuario obterDados(){
         String email = authenticatedUserProvider.getAuthenticatedUsername();
@@ -64,9 +58,6 @@ public class UsuarioService {
     }
 
     public ResponseDTO registerUser(RegisterRequestDTO body) throws UnsupportedEncodingException, MessagingException {
-        Role roleUser = roleRepository.findByNome(RoleName.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Role USER não encontrada"));
-
 
 
         Optional<Usuario> existingUser = Optional.ofNullable(userRepository.findByEmail(body.email()));
@@ -78,8 +69,9 @@ public class UsuarioService {
         Usuario newUser = new Usuario();
         newUser.setNome(body.nome());
         newUser.setEmail(body.email());
+        newUser.setRole(body.role());
         newUser.setSenha(passwordEncoder.encode(body.senha()));
-        newUser.setRoles(Set.of(roleUser));
+
         // Gerando código de verificação
         String randomCode = RandomString.generateRandomString(64);
         newUser.setVerificationCode(randomCode);
