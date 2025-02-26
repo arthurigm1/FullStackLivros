@@ -11,7 +11,10 @@ import projetolivros.livros.Dto.RegisterRequestDTO;
 import projetolivros.livros.Dto.ResponseDTO;
 import projetolivros.livros.Dto.UsuarioAtualizardto;
 import projetolivros.livros.Exceptions.RegistroException;
+import projetolivros.livros.Model.Enum.RoleName;
+import projetolivros.livros.Model.Role;
 import projetolivros.livros.Model.Usuario;
+import projetolivros.livros.Repository.RoleRepository;
 import projetolivros.livros.Repository.UsuarioRepository;
 import projetolivros.livros.Security.AuthenticatedUserProvider;
 import projetolivros.livros.Security.PasswordEncoderConfig;
@@ -20,6 +23,7 @@ import projetolivros.livros.Utill.RandomString;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +33,7 @@ public class UsuarioService {
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticatedUserProvider authenticatedUserProvider;
+    private final RoleRepository roleRepository;
 
     public Usuario obterDados(){
         String email = authenticatedUserProvider.getAuthenticatedUsername();
@@ -59,7 +64,11 @@ public class UsuarioService {
     }
 
     public ResponseDTO registerUser(RegisterRequestDTO body) throws UnsupportedEncodingException, MessagingException {
-        // Verifica se o e-mail já está cadastrado
+        Role roleUser = roleRepository.findByNome(RoleName.ROLE_USER)
+                .orElseThrow(() -> new RuntimeException("Role USER não encontrada"));
+
+
+
         Optional<Usuario> existingUser = Optional.ofNullable(userRepository.findByEmail(body.email()));
         if (existingUser.isPresent()) {
             throw new RegistroException("Este e-mail já está cadastrado.");
@@ -70,7 +79,7 @@ public class UsuarioService {
         newUser.setNome(body.nome());
         newUser.setEmail(body.email());
         newUser.setSenha(passwordEncoder.encode(body.senha()));
-
+        newUser.setRoles(Set.of(roleUser));
         // Gerando código de verificação
         String randomCode = RandomString.generateRandomString(64);
         newUser.setVerificationCode(randomCode);

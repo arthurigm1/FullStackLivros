@@ -4,16 +4,20 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.Type;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import projetolivros.livros.Model.Enum.RoleName;
 
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -36,7 +40,7 @@ public class Usuario implements UserDetails {
     @Column
     private String senha;
 
-    @Column
+    @Column(unique = true)
     private String cpf;
     @Column
     private LocalDate dataNascimento;
@@ -51,7 +55,16 @@ public class Usuario implements UserDetails {
         return List.of();
     }
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "usuario_roles",
+            joinColumns = @JoinColumn(name = "usuario_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles;
 
+   /* @Type(ListArrayType.class)
+    @Column(name = "roles", columnDefinition = "varchar[]")
+    private List<String> roles;
+*/
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Livro> livros;
 
