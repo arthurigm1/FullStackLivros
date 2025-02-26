@@ -7,6 +7,7 @@ import projetolivros.livros.Model.Enum.UsuarioRole;
 
 public record RegisterRequestDTO(  @NotBlank  String nome,
                                    @NotBlank String email,
-                                   @NotBlank String senha,
-                                   UsuarioRole role) {
+                                   @NotBlank String senha)
+
+                                   {
 }

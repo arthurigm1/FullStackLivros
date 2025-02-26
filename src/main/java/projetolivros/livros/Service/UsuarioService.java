@@ -10,6 +10,7 @@ import projetolivros.livros.Dto.RegisterRequestDTO;
 import projetolivros.livros.Dto.ResponseDTO;
 import projetolivros.livros.Dto.UsuarioAtualizardto;
 import projetolivros.livros.Exceptions.RegistroException;
+import projetolivros.livros.Model.Enum.UsuarioRole;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.UsuarioRepository;
 import projetolivros.livros.Security.AuthenticatedUserProvider;
@@ -69,7 +70,7 @@ public class UsuarioService {
         Usuario newUser = new Usuario();
         newUser.setNome(body.nome());
         newUser.setEmail(body.email());
-        newUser.setRole(body.role());
+        newUser.setRole(UsuarioRole.USER);
         newUser.setSenha(passwordEncoder.encode(body.senha()));
 
         // Gerando código de verificação
