@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Dto.PedidoDto;
+import projetolivros.livros.Dto.ResumoPedidosDto;
 import projetolivros.livros.Service.PedidoService;
 import projetolivros.livros.Service.RelatorioService;
 
@@ -59,6 +60,15 @@ public class PedidoController {
             return ResponseEntity.ok(pedidoDTOs);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao listar pedidos");
+        }
+    }
+    @GetMapping("/resumo")
+    public ResponseEntity<ResumoPedidosDto> listarResumoPedidos() {
+        try {
+            ResumoPedidosDto resumo = pedidoService.listarTodosPedidosComResumo();
+            return ResponseEntity.ok(resumo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 }

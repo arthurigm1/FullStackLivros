@@ -2,10 +2,7 @@ package projetolivros.livros.Service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import projetolivros.livros.Dto.EnderecoDto;
-import projetolivros.livros.Dto.LivroPedidodto;
-import projetolivros.livros.Dto.PedidoDto;
-import projetolivros.livros.Dto.PixChargeRequest;
+import projetolivros.livros.Dto.*;
 import projetolivros.livros.Model.*;
 import projetolivros.livros.Model.Enum.StatusPedido;
 import projetolivros.livros.Repository.CarrinhoRepository;
@@ -168,5 +165,41 @@ public class PedidoService {
         Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(() -> new RuntimeException("Pedido não encontrado"));
         pedido.setStatus(StatusPedido.PAGO);
         pedidoRepository.save(pedido);
+    }
+
+    public ResumoPedidosDto listarTodosPedidosComResumo() {
+        List<Pedido> pedidos = pedidoRepository.findAll();
+
+        BigDecimal valorTotal = pedidos.stream()
+                .map(Pedido::getValorTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal valorPago = pedidos.stream()
+                .filter(pedido -> StatusPedido.PAGO.equals(pedido.getStatus()))
+                .map(Pedido::getValorTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal valorAguardandoPagamento = pedidos.stream()
+                .filter(pedido -> StatusPedido.AGUARDANDO_PAGAMENTO.equals(pedido.getStatus()))
+                .map(Pedido::getValorTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        long countPago = pedidos.stream()
+                .filter(pedido -> StatusPedido.PAGO.equals(pedido.getStatus()))
+                .count();
+
+        long countAguardandoPagamento = pedidos.stream()
+                .filter(pedido -> StatusPedido.AGUARDANDO_PAGAMENTO.equals(pedido.getStatus()))
+                .count();
+
+
+        ResumoPedidosDto resumo = new ResumoPedidosDto();
+        resumo.setValorTotal(valorTotal);
+        resumo.setValorPago(valorPago);
+        resumo.setValorAguardandoPagamento(valorAguardandoPagamento);
+        resumo.setCountPago(countPago);
+        resumo.setCountAguardandoPagamento(countAguardandoPagamento);
+
+        return resumo;
     }
 }

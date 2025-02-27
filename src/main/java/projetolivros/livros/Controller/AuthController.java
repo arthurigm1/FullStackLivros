@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Dto.LoginRequestDTO;
 import projetolivros.livros.Dto.RegisterRequestDTO;
 import projetolivros.livros.Dto.ResponseDTO;
+import projetolivros.livros.Dto.Responseadmindto;
 import projetolivros.livros.Exceptions.RegistroException;
+import projetolivros.livros.Model.Enum.UsuarioRole;
 import projetolivros.livros.Model.PasswordResetToken;
 import projetolivros.livros.Model.Usuario;
 import projetolivros.livros.Repository.PasswordResetTokenRepository;
@@ -119,4 +121,6 @@ public class AuthController {
 
         return ResponseEntity.ok(response);
     }
+
+
 }

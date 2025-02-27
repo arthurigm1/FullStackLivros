@@ -58,6 +58,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/avaliacoes/**").permitAll()
                         .requestMatchers(HttpMethod.POST,"/avaliacoes/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/livros/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/pedido/resumo").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST,"/admin/login").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/admin/usuarios").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,"/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
 
                 )
@@ -69,6 +73,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("https://pagiinova.netlify.app"));
+        configuration.setAllowedOrigins(List.of("http://localhost:4200/"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
