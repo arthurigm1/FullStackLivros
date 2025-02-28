@@ -36,7 +36,6 @@
         @ApiResponse(responseCode = "200", description = "Login bem-sucedido")
         @ApiResponse(responseCode = "403", description = "Acesso negado")
         @PostMapping("/login")
-        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Responseadmindto> adminLogin(@RequestBody @Valid LoginRequestDTO body) {
             Usuario user = this.repository.findByEmail(body.email());
             if (user == null) {
