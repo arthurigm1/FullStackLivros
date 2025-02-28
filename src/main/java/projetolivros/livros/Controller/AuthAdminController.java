@@ -6,6 +6,7 @@
     import jakarta.validation.Valid;
     import lombok.RequiredArgsConstructor;
     import org.springframework.http.ResponseEntity;
+    import org.springframework.security.access.prepost.PreAuthorize;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.web.bind.annotation.*;
     import projetolivros.livros.Dto.*;
@@ -35,6 +36,7 @@
         @ApiResponse(responseCode = "200", description = "Login bem-sucedido")
         @ApiResponse(responseCode = "403", description = "Acesso negado")
         @PostMapping("/login")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<Responseadmindto> adminLogin(@RequestBody @Valid LoginRequestDTO body) {
             Usuario user = this.repository.findByEmail(body.email());
             if (user == null) {
@@ -56,6 +58,7 @@
         @Operation(summary = "Lista todos os usuários com email e role")
         @ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso")
         @GetMapping("/usuarios")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<List<UsuarioDto>> getAllUsers() {
             List<UsuarioDto> usuarios = repository.findAll().stream()
                     .map(user -> new UsuarioDto(user.getEmail(), user.getRole(),user.getId()))
@@ -68,6 +71,7 @@
         @ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso")
         @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
         @DeleteMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
             Optional<Usuario> usuarioOptional = repository.findById(id);
 
@@ -82,6 +86,7 @@
         @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso")
         @ApiResponse(responseCode = "400", description = "Usuário já existente")
         @PostMapping("/register")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<ResponseDTO> register(@RequestBody @Valid RegisterRequestAdminDto body) {
             try {
                 ResponseDTO response = service.registerUserADMIN(body);

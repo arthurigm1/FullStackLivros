@@ -43,6 +43,7 @@ public class LivroController {
     @ApiResponse(responseCode = "400", description = "Dados inválidos para cadastro do livro")
     @PostMapping
     @Transactional
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> cadastrarLivro(@RequestBody @Valid CadastroLivroDto cadastroLivroDto) {
         Livro livro = mapper.toEntity(cadastroLivroDto);
         service.salvar(livro);
@@ -70,6 +71,7 @@ public class LivroController {
     @ApiResponse(responseCode = "204", description = "Livro deletado com sucesso")
     @ApiResponse(responseCode = "404", description = "Livro não encontrado")
     @DeleteMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> deletar(@PathVariable("id") String id) {
         return service.buscarPorId(UUID.fromString(id))
                 .map(livro -> {
@@ -103,6 +105,7 @@ public class LivroController {
     @ApiResponse(responseCode = "204", description = "Livro atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Livro não encontrado")
     @PutMapping("{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Object> atualizar(
             @Parameter(description = "ID do livro") @PathVariable("id") String id,
             @RequestBody @Valid AtualizarLivroDto dto) {

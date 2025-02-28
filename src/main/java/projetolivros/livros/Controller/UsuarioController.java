@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Controller.Mapper.UsuarioMapper;
 import projetolivros.livros.Dto.AlterarSenhadto;
@@ -32,6 +33,7 @@ public class UsuarioController {
 
     @Operation(summary = "Atualizar usuário", description = "Atualiza os dados do usuário autenticado.")
     @PutMapping("")
+
     public ResponseEntity<UsuarioAtualizardto> atualizarUsuario(@RequestBody UsuarioAtualizardto usuarioDTO) {
         Usuario usuarioAtualizado = usuarioService.atualizarUsuario(usuarioDTO);
         return (usuarioAtualizado != null)

@@ -1,5 +1,6 @@
 package projetolivros.livros.Service;
 
+import projetolivros.livros.Dto.EditoraAdminDto;
 import projetolivros.livros.Dto.EditoraDto;
 import projetolivros.livros.Model.Editora;
 import projetolivros.livros.Repository.EditoraRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 
@@ -20,6 +22,20 @@ public class EditoraService {
 
     public List<Editora> listarTodas() {
         return editoraRepository.findAll();
+    }
+    public List<EditoraAdminDto> listarTodasAdmin() {
+        List<Editora> editoras = editoraRepository.findAll();
+
+        return editoras.stream()
+                .map(editora -> {
+                    EditoraAdminDto editoraDto = new EditoraAdminDto();
+                    editoraDto.setId(editora.getId());
+                    editoraDto.setNome(editora.getNome());
+                    editoraDto.setImg(editora.getImg());
+                    editoraDto.setQuantidadeLivros(editora.getLivros() != null ? editora.getLivros().size() : 0);
+                    return editoraDto;
+                })
+                .collect(Collectors.toList());
     }
 
     public Optional<Editora> buscarPorId(UUID id) {

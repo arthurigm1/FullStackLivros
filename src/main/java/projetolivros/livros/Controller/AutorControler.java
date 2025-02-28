@@ -8,8 +8,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import projetolivros.livros.Controller.Mapper.AutorMapper;
+import projetolivros.livros.Dto.AutorAdminDto;
 import projetolivros.livros.Dto.AutorDto;
 import projetolivros.livros.Model.Autor;
 import projetolivros.livros.Service.AutorService;
@@ -32,9 +34,9 @@ public class AutorControler {
     @ApiResponse(responseCode = "201", description = "Autor cadastrado com sucesso")
     @ApiResponse(responseCode = "400", description = "Erro na validação dos dados")
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> salvar(@RequestBody @Valid AutorDto autor) {
-        Autor autorEntidade = mapper.toEntity(autor);
-        service.save(autorEntidade);
+        service.save(mapper.toEntity(autor));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -42,10 +44,8 @@ public class AutorControler {
     @ApiResponse(responseCode = "200", description = "Autor encontrado")
     @ApiResponse(responseCode = "404", description = "Autor não encontrado")
     @GetMapping("{id}")
-    public ResponseEntity<AutorDto> obterDetalhes(@PathVariable("id") String id) {
-        var idAutor = UUID.fromString(id);
-
-        return service.findById(idAutor)
+    public ResponseEntity<AutorDto> obterDetalhes(@PathVariable("id") UUID id) {
+        return service.findById(id)
                 .map(autor -> ResponseEntity.ok(mapper.toDto(autor)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -54,14 +54,14 @@ public class AutorControler {
     @ApiResponse(responseCode = "204", description = "Autor excluído com sucesso")
     @ApiResponse(responseCode = "404", description = "Autor não encontrado")
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") String id) {
-        var idAutor = UUID.fromString(id);
-        Optional<Autor> autor = service.findById(idAutor);
-        if (autor.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        service.delete(autor.get());
-        return ResponseEntity.noContent().build();
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Object> delete(@PathVariable("id") UUID id) {
+        return service.findById(id)
+                .map(autor -> {
+                    service.delete(autor);
+                    return ResponseEntity.noContent().build();
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "Obtém a lista de autores filtrando por nome e nacionalidade")
@@ -71,27 +71,35 @@ public class AutorControler {
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "nacionalidade", required = false) String nacionalidade) {
 
-        List<Autor> lista = service.pesquisaByExample(nome, nacionalidade);
-        List<AutorDto> resultado = lista.stream().map(mapper::toDto).collect(Collectors.toList());
+        return ResponseEntity.ok(service.pesquisaByExample(nome, nacionalidade)
+                .stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList()));
+    }
 
-        return ResponseEntity.ok(resultado);
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<AutorAdminDto>> listarTodasAdmin() {
+        return ResponseEntity.ok(service.listarTodasAdmin());
     }
 
     @Operation(summary = "Atualiza os dados de um autor pelo ID")
     @ApiResponse(responseCode = "204", description = "Autor atualizado com sucesso")
     @ApiResponse(responseCode = "404", description = "Autor não encontrado")
     @PutMapping("{id}")
-    public ResponseEntity<Void> atualizar(@PathVariable("id") String id, @RequestBody @Valid AutorDto dto) {
-        var idAutor = UUID.fromString(id);
-        Optional<Autor> autorOptional = service.findById(idAutor);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> atualizar(@PathVariable("id") UUID id, @RequestBody @Valid AutorDto dto) {
+        Optional<Autor> autorOptional = service.findById(id);
         if (autorOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        var autorAtual = autorOptional.get();
-        autorAtual.setNome(dto.nome());
-        autorAtual.setDataNascimento(dto.dataNascimento());
-        autorAtual.setNacionalidade(dto.nacionalidade());
-        service.atualizar(autorAtual);
+        Autor autor = autorOptional.get();
+        if (dto.nome() != null) autor.setNome(dto.nome());
+        if (dto.dataNascimento() != null) autor.setDataNascimento(dto.dataNascimento());
+        if (dto.nacionalidade() != null) autor.setNacionalidade(dto.nacionalidade());
+        if(dto.img() != null) autor.setImg(dto.img());
+        if (dto.descricao() !=  null) autor.setDescricao(dto.descricao());
+        service.atualizar(autor);
         return ResponseEntity.noContent().build();
     }
 }
