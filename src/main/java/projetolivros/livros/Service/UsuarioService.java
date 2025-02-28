@@ -4,11 +4,8 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import projetolivros.livros.Dto.AlterarSenhadto;
-import projetolivros.livros.Dto.RegisterRequestDTO;
+import projetolivros.livros.Dto.*;
 
-import projetolivros.livros.Dto.ResponseDTO;
-import projetolivros.livros.Dto.UsuarioAtualizardto;
 import projetolivros.livros.Exceptions.RegistroException;
 import projetolivros.livros.Model.Enum.UsuarioRole;
 import projetolivros.livros.Model.Usuario;
@@ -29,7 +26,20 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticatedUserProvider authenticatedUserProvider;
 
+    public ResponseDTO registerUserADMIN(RegisterRequestAdminDto body) throws UnsupportedEncodingException, MessagingException {
 
+        Optional<Usuario> existingUser = Optional.ofNullable(userRepository.findByEmail(body.email()));
+        if (existingUser.isPresent()) {
+            throw new RegistroException("Este e-mail já está cadastrado.");
+        }
+        Usuario newUser = new Usuario();
+        newUser.setEmail(body.email());
+        newUser.setRole(UsuarioRole.ADMIN);
+        newUser.setSenha(passwordEncoder.encode(body.senha()));
+        newUser.setEnabled(true);
+        userRepository.save(newUser);
+        return new ResponseDTO(newUser.getNome(), null, newUser.getId());
+    }
     public Usuario obterDados(){
         String email = authenticatedUserProvider.getAuthenticatedUsername();
         return userRepository.findByEmail(email);
@@ -44,13 +54,10 @@ public class UsuarioService {
             usuario.setNome(usuarioDTO.getNome());
             usuario.setEmail(usuarioDTO.getEmail());
             usuario.setDataNascimento(usuarioDTO.getDataNascimento());
-
-            // Mantém o CPF existente, se já estiver cadastrado
             if (usuario.getCpf() != null && !usuario.getCpf().isEmpty()) {
                 usuarioDTO.setCpf(usuario.getCpf());
-            } else {
-                usuario.setCpf(usuarioDTO.getCpf()); // Se não houver CPF, permite cadastrar
-            }
+            }else{
+            usuario.setCpf(usuarioDTO.getCpf());}
 
             return userRepository.save(usuario);
         }
@@ -66,29 +73,24 @@ public class UsuarioService {
             throw new RegistroException("Este e-mail já está cadastrado.");
         }
 
-        // Criando o usuário
         Usuario newUser = new Usuario();
         newUser.setNome(body.nome());
         newUser.setEmail(body.email());
         newUser.setRole(UsuarioRole.USER);
         newUser.setSenha(passwordEncoder.encode(body.senha()));
-
-        // Gerando código de verificação
         String randomCode = RandomString.generateRandomString(64);
         newUser.setVerificationCode(randomCode);
         newUser.setEnabled(false);
-
-        // Salvando no banco de dados
         Usuario savedUser = userRepository.save(newUser);
 
-        // Enviar e-mail de verificação
+
         try {
             mailService.sendVerificationEmail(savedUser);
         } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException("Erro ao enviar o e-mail de verificação", e);
         }
 
-        // Retorna um DTO adequado
+
         return new ResponseDTO(savedUser.getNome(), null, savedUser.getId());
     }
     public Usuario obterPorEmail(String email) {
@@ -100,22 +102,18 @@ public class UsuarioService {
 
         if(user == null || user.isEnabled()){
             return false;
-        } else {
+        }
             user.setVerificationCode(null);
             user.setEnabled(true);
             userRepository.save(user);
-
             return true;
-        }
     }
     public boolean alterarSenha( AlterarSenhadto alterarSenhaDTO) {
         String email = authenticatedUserProvider.getAuthenticatedUsername();
         Usuario usuario = userRepository.findByEmail(email);
-
             if (!passwordEncoder.matches(alterarSenhaDTO.getSenhaAtual(), usuario.getSenha())) {
                 return false;
             }
-
             usuario.setSenha(passwordEncoder.encode(alterarSenhaDTO.getNovaSenha()));
             userRepository.save(usuario);
             return true;

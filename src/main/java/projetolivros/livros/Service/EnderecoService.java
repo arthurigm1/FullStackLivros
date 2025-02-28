@@ -22,24 +22,17 @@ public class EnderecoService {
     private SecurityService securityService;
 
     public Endereco atualizarEndereco(UUID id, Endereco enderecoAtualizado) {
-        Optional<Endereco> enderecoExistenteOptional = enderecoRepository.findById(id);
-
-        if (!enderecoExistenteOptional.isPresent()) {
-            return null;
-        }
-
-        Endereco enderecoExistente = enderecoExistenteOptional.get();
-
-        // Atualizando as informações do endereço
-        enderecoExistente.setCep(enderecoAtualizado.getCep());
-        enderecoExistente.setLogradouro(enderecoAtualizado.getLogradouro());
-        enderecoExistente.setComplemento(enderecoAtualizado.getComplemento());
-        enderecoExistente.setBairro(enderecoAtualizado.getBairro());
-        enderecoExistente.setLocalidade(enderecoAtualizado.getLocalidade());
-        enderecoExistente.setUf(enderecoAtualizado.getUf());
-
-
-        return enderecoRepository.save(enderecoExistente);
+        return enderecoRepository.findById(id)
+                .map(enderecoExistente -> {
+                    enderecoExistente.setCep(enderecoAtualizado.getCep());
+                    enderecoExistente.setLogradouro(enderecoAtualizado.getLogradouro());
+                    enderecoExistente.setComplemento(enderecoAtualizado.getComplemento());
+                    enderecoExistente.setBairro(enderecoAtualizado.getBairro());
+                    enderecoExistente.setLocalidade(enderecoAtualizado.getLocalidade());
+                    enderecoExistente.setUf(enderecoAtualizado.getUf());
+                    return enderecoRepository.save(enderecoExistente);
+                })
+                .orElse(null);
     }
 
     public Endereco salvarEndereco(Endereco endereco) {

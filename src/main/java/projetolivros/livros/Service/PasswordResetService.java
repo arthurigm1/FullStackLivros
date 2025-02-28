@@ -39,7 +39,6 @@ public class PasswordResetService {
         tokenRepository.save(resetToken);
 
         String resetLink = "http://localhost:4200/reset-password?token=" + token;
-      //  enviarEmail(usuario.getEmail(), "Redefinição de Senha", "Clique no link para redefinir sua senha: " + resetLink);
         String toAddres = email;
         String fromAddres = "Pagiinova@gmail.com";
         String senderName = "`Pagiinova`";

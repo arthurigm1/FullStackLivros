@@ -35,8 +35,6 @@ public class Usuario implements UserDetails {
     private UUID id;
 
     @Column
-    @NotNull
-    @NotBlank
     private String nome;
 
     @Column

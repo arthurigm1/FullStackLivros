@@ -16,9 +16,11 @@ import projetolivros.livros.Dto.AtualizarLivroDto;
 import projetolivros.livros.Dto.CadastroLivroDto;
 import projetolivros.livros.Dto.ResultadoLivroDto;
 import projetolivros.livros.Model.Autor;
+import projetolivros.livros.Model.Editora;
 import projetolivros.livros.Model.Enum.GeneroLivro;
 import projetolivros.livros.Model.Livro;
 import projetolivros.livros.Repository.AutorRepository;
+import projetolivros.livros.Repository.EditoraRepository;
 import projetolivros.livros.Service.LivroService;
 
 import java.util.List;
@@ -34,6 +36,7 @@ public class LivroController {
     private final LivroService service;
     private final LivroMapper mapper;
     private final AutorRepository autorRepository;
+    private final EditoraRepository editoraRepository;
 
     @Operation(summary = "Cadastra um novo livro")
     @ApiResponse(responseCode = "200", description = "Livro cadastrado com sucesso")
@@ -124,6 +127,20 @@ public class LivroController {
                     }
                     if (dto.getDataPublicacao() != null) {
                         livro.setDataPublicacao(dto.getDataPublicacao());
+                    }
+                    if (dto.getIdEditora() != null) {
+                        Editora editora = editoraRepository.findById(dto.getIdEditora())
+                                .orElseThrow(() -> new IllegalArgumentException("Editora não encontrada"));
+                        livro.setEditora(editora);
+                    }
+                    if (dto.getDescricao() != null) {
+                        livro.setDescricao(dto.getDescricao());
+                    }
+                    if (dto.getImg() != null) {
+                        livro.setImg(dto.getImg());
+                    }
+                    if (dto.getEstoque() != 0) {
+                        livro.setEstoque(dto.getEstoque());
                     }
 
                     service.atualizar(livro);

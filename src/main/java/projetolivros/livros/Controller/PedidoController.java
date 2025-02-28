@@ -8,9 +8,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import projetolivros.livros.Dto.PedidoAdminDto;
 import projetolivros.livros.Dto.PedidoDto;
 import projetolivros.livros.Dto.ResumoPedidosDto;
+import projetolivros.livros.Model.Pedido;
 import projetolivros.livros.Service.PedidoService;
 import projetolivros.livros.Service.RelatorioService;
 
@@ -37,7 +40,19 @@ public class PedidoController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=relatorio_pedido.pdf")
                 .body(pdfBytes);
     }
-
+    @GetMapping("/relatorio")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<byte[]> gerarRelatorioTodosPedidos() {
+        try {
+            byte[] pdfBytes = relatorioService.gerarRelatorioTodosPedidos();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=relatorio_pedido.pdf")
+                    .body(pdfBytes);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @Operation(summary = "Criar um novo pedido", description = "Cria um pedido com base no endereço informado e retorna um QR Code para pagamento.")
     @PostMapping("/{enderecoId}")
     public ResponseEntity<Map<String, String>> criarPedido(@PathVariable UUID enderecoId) {
@@ -62,6 +77,12 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao listar pedidos");
         }
     }
+    @GetMapping("/pedidos")
+    public List<PedidoAdminDto> getAllPedidos() {
+        return pedidoService.listarTodosPedidos();
+    }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping("/resumo")
     public ResponseEntity<ResumoPedidosDto> listarResumoPedidos() {
         try {
@@ -71,4 +92,6 @@ public class PedidoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+
 }

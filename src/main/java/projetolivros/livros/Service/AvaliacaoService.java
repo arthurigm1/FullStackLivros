@@ -26,8 +26,6 @@ public class AvaliacaoService {
     private  final SecurityService securityService;
 
     public MediaAvaliacaoDto calcularMediaNotasPorLivro(UUID livroId) {
-        Optional<Livro> livroOptional = livroRepository.findById(livroId);
-        Livro livro = livroOptional.get();
         List<AvaliacaoLivro> avaliacoes = avaliacaoRepository.findByLivroId(livroId);
         if (avaliacoes.isEmpty()) {
             return new MediaAvaliacaoDto();

@@ -40,22 +40,17 @@ public class FavoritoService {
     public void desfavoritarLivro(Usuario usuario, Livro livro) {
        Favorito favorito = favoritoRepository.findByUsuarioIdAndLivroId(usuario.getId(), livro.getId());
         if (favorito != null) {
-            favoritoRepository.delete(favorito);  // Remove o favorito
+            favoritoRepository.delete(favorito);
         }
     }
 
     public List<ResultadoLivroDto> listarLivrosFavoritos() {
         Usuario usuario = securityService.obterUsuarioLogado();
-
-
         List<Favorito> favoritos = Optional.ofNullable(favoritoRepository.findByUsuarioId(usuario.getId()))
                 .orElse(Collections.emptyList());
-
-
         if (favoritos.isEmpty()) {
             return Collections.emptyList();
         }
-
         return favoritos.stream()
                 .filter(favorito -> favorito.getLivro() != null)
                 .map(favorito -> {
@@ -71,6 +66,7 @@ public class FavoritoService {
                             livro.getGenero(),
                             livro.getDescricao(),
                             livro.getImg(),
+
                             (autor != null) ? new AutorDto(
                                     autor.getId(),
                                     autor.getNome(),
@@ -79,7 +75,7 @@ public class FavoritoService {
                                     autor.getDescricao(),
                                     autor.getImg()
 
-                            ) : null
+                            ) : null,livro.getEstoque()
                     );
                 })
                 .collect(Collectors.toList());

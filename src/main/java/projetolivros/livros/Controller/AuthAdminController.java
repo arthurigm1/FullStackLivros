@@ -8,13 +8,13 @@
     import org.springframework.http.ResponseEntity;
     import org.springframework.security.crypto.password.PasswordEncoder;
     import org.springframework.web.bind.annotation.*;
-    import projetolivros.livros.Dto.LoginRequestDTO;
-    import projetolivros.livros.Dto.Responseadmindto;
-    import projetolivros.livros.Dto.UsuarioDto;
+    import projetolivros.livros.Dto.*;
+    import projetolivros.livros.Exceptions.RegistroException;
     import projetolivros.livros.Model.Enum.UsuarioRole;
     import projetolivros.livros.Model.Usuario;
     import projetolivros.livros.Repository.UsuarioRepository;
     import projetolivros.livros.Security.TokenService;
+    import projetolivros.livros.Service.UsuarioService;
 
     import java.util.List;
     import java.util.Optional;
@@ -29,6 +29,7 @@
         private final UsuarioRepository repository;
         private final PasswordEncoder passwordEncoder;
         private final TokenService tokenService;
+        private final UsuarioService service;
 
         @Operation(summary = "Login exclusivo para administradores")
         @ApiResponse(responseCode = "200", description = "Login bem-sucedido")
@@ -66,14 +67,30 @@
         @Operation(summary = "Excluir um usuário pelo ID")
         @ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso")
         @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
-        @DeleteMapping("{id}")
+        @DeleteMapping("/{id}")
         public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
-            Usuario usuario = repository.findById(id).orElse(null);
-            if (usuario == null) {
+            Optional<Usuario> usuarioOptional = repository.findById(id);
+
+            if (usuarioOptional.isEmpty()) {
                 return ResponseEntity.status(404).body("Usuário não encontrado.");
             }
-            repository.delete(usuario);
-            return ResponseEntity.ok("Usuário excluído com sucesso.");
+            repository.delete(usuarioOptional.get());
+            return ResponseEntity.ok().build();
+        }
+
+        @Operation(summary = "Registra um novo usuário")
+        @ApiResponse(responseCode = "200", description = "Usuário registrado com sucesso")
+        @ApiResponse(responseCode = "400", description = "Usuário já existente")
+        @PostMapping("/register")
+        public ResponseEntity<ResponseDTO> register(@RequestBody @Valid RegisterRequestAdminDto body) {
+            try {
+                ResponseDTO response = service.registerUserADMIN(body);
+                return ResponseEntity.ok(response);
+            } catch (RegistroException e) {
+                return ResponseEntity.badRequest().body(new ResponseDTO(e.getMessage(), null, null));
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body(new ResponseDTO("Erro interno no servidor", null, null));
+            }
         }
 
     }

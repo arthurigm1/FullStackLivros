@@ -17,8 +17,8 @@ public record ResultadoLivroDto(
         GeneroLivro genero,
         String descricao,
         String img,
-        AutorDto autor
-
+        AutorDto autor,
+        int estoque
 
 
        ) {

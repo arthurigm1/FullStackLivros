@@ -43,10 +43,7 @@ public class CarrinhoService {
 
 
     public LivroCarrinhoRequestdto criarOuAdicionarLivroAoCarrinho(UUID livroId, int quantidade) throws Exception {
-        // Obtém o usuário logado
         Usuario usuario = securityService.obterUsuarioLogado();
-
-        // Cria um novo carrinho para o usuário se não existir
         Carrinho carrinho = carrinhoRepository.findByUsuarioId(usuario.getId())
                 .orElseGet(() -> {
                     Carrinho novoCarrinho = new Carrinho();
@@ -54,23 +51,18 @@ public class CarrinhoService {
                     return carrinhoRepository.save(novoCarrinho);
                 });
 
-        // Busca o livro pelo ID
         Livro livro = livroRepository.findById(livroId)
                 .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
 
-        // Verifica se o livro já existe no carrinho
         CarrinhoPk carrinhoPk = new CarrinhoPk(livro.getId(), carrinho.getId());
         LivroCarrinho livroCarrinhoExistente = livroCarrinhoRepository.findById(carrinhoPk).orElse(null);
 
         if (livroCarrinhoExistente != null) {
-            // Se o livro já está no carrinho, incrementa a quantidade e o preço
             livroCarrinhoExistente.setQuantidade(livroCarrinhoExistente.getQuantidade() + quantidade);
             BigDecimal novoPrecoTotal = livroCarrinhoExistente.getPrecoTotal().add(livro.getPreco().multiply(BigDecimal.valueOf(quantidade)));
             livroCarrinhoExistente.setPrecoTotal(novoPrecoTotal);
-            // Atualiza o item no banco
             livroCarrinhoRepository.save(livroCarrinhoExistente);
-        } else {
-            // Caso o livro não exista no carrinho, cria um novo item
+        }else {
             LivroCarrinho novoLivroCarrinho = new LivroCarrinho();
             novoLivroCarrinho.setId(carrinhoPk);
             novoLivroCarrinho.setCarrinho(carrinho);
@@ -78,12 +70,10 @@ public class CarrinhoService {
             novoLivroCarrinho.setQuantidade(quantidade);
             novoLivroCarrinho.setPreco(livro.getPreco());
             novoLivroCarrinho.setPrecoTotal(livro.getPreco().multiply(BigDecimal.valueOf(quantidade)));
-
-            // Salva o novo item no carrinho
             livroCarrinhoRepository.save(novoLivroCarrinho);
         }
 
-        // Retorna o DTO com o livro e o preço
+
         return new LivroCarrinhoRequestdto(livro.getId(), livro.getTitulo(), livro.getPreco().multiply(BigDecimal.valueOf(quantidade)));
     }
 
@@ -119,21 +109,13 @@ public class CarrinhoService {
 
         if (itemOptional.isPresent()) {
             LivroCarrinho item = itemOptional.get();
-
-            // Verificar se a quantidade é maior que 1
             if (item.getQuantidade() > 1) {
                 item.setQuantidade(item.getQuantidade() - 1);
-
-                // Atualizar o preço total corretamente
                 BigDecimal precoTotal = item.getPrecoTotal().subtract(item.getPreco());
                 item.setPrecoTotal(precoTotal);
-
-                // Salvar as alterações no carrinho
                 livroCarrinhoRepository.save(item);
-            } else {
-                // Se a quantidade for 1, remove o item completamente
-                livroCarrinhoRepository.delete(item);
-            }
+            }else{
+                livroCarrinhoRepository.delete(item);}
         }
     }
 

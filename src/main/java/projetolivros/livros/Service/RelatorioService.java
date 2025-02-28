@@ -1,8 +1,11 @@
 package projetolivros.livros.Service;
 
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import net.sf.jasperreports.engine.*;
@@ -160,7 +163,96 @@ private final LivroPedidoRepository livroPedidoRepository;
             throw new RuntimeException("Erro ao gerar o relatório: " + e.getMessage());
         }
     }
+    public byte[] gerarRelatorioTodosPedidos() {
+        try {
+            // Recupera todos os pedidos
+            List<Pedido> pedidos = pedidoRepository.findAll();
 
+            // Cria o documento PDF
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            PdfWriter writer = new PdfWriter(byteArrayOutputStream);
+            PdfDocument pdfDocument = new PdfDocument(writer);
+            Document document = new Document(pdfDocument, PageSize.A4.rotate()); // Usar página no modo paisagem
+
+            // Adicionando imagem do logo
+            InputStream imageStream = getClass().getResourceAsStream("/templates/pagiinova.png");
+            if (imageStream != null) {
+                Image img = new Image(ImageDataFactory.create(imageStream.readAllBytes()));
+                img.setWidth(200);
+                img.setHeight(80);
+                img.setHorizontalAlignment(HorizontalAlignment.CENTER);
+                document.add(img);
+            }
+
+            // Título
+            Paragraph title = new Paragraph("Relatório de Todos os Pedidos")
+                    .setFontSize(20)
+                    .setBold()
+                    .setTextAlignment(TextAlignment.CENTER)
+                    .setFontColor(ColorConstants.DARK_GRAY)
+                    .setMarginBottom(20);
+            document.add(title);
+
+            // Tabela de pedidos
+            Table table = new Table(UnitValue.createPercentArray(new float[]{10, 15, 10, 10, 15, 30})); // Larguras das colunas em porcentagem
+            table.setWidth(UnitValue.createPercentValue(100)); // Tabela ocupa 100% da largura da página
+
+            // Cabeçalho da tabela
+            table.addHeaderCell(new Cell().add(new Paragraph("ID Pedido")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+            table.addHeaderCell(new Cell().add(new Paragraph("Usuário")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+            table.addHeaderCell(new Cell().add(new Paragraph("Status")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+            table.addHeaderCell(new Cell().add(new Paragraph("Valor Total")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+            table.addHeaderCell(new Cell().add(new Paragraph("Data Cadastro")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+            table.addHeaderCell(new Cell().add(new Paragraph("Itens")).setBackgroundColor(ColorConstants.LIGHT_GRAY).setBold());
+
+            // Iterando sobre todos os pedidos
+            for (Pedido pedido : pedidos) {
+                Usuario usuario = pedido.getUsuario();
+                String usuarioemail = usuario != null ? usuario.getEmail() : "Não informado";
+                String status = pedido.getStatus().toString();
+                String valorTotal = "R$ " + pedido.getValorTotal().toString();
+                String dataCadastro = pedido.getDataCadastro() != null
+                        ? pedido.getDataCadastro().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                        : "Data não disponível";
+
+                // Adicionando linha na tabela
+                table.addCell(new Cell().add(new Paragraph(String.valueOf(pedido.getId()))));
+                table.addCell(new Cell().add(new Paragraph(usuarioemail)));
+                table.addCell(new Cell().add(new Paragraph(status)));
+                table.addCell(new Cell().add(new Paragraph(valorTotal)));
+                table.addCell(new Cell().add(new Paragraph(dataCadastro)));
+
+                // Adicionando os itens do pedido
+                StringBuilder itens = new StringBuilder();
+                List<Livro> livros = livroPedidoRepository.findLivrosByPedidoId(pedido.getId());
+                for (Livro livro : livros) {
+                    Optional<LivroPedido> livroPedidoOpt = livroPedidoRepository.findByPedidoAndLivro(pedido, livro);
+                    int quantidade = livroPedidoOpt.map(LivroPedido::getQuantidade).orElse(0);
+                    itens.append(livro.getTitulo()).append(" (").append(quantidade).append("), ");
+                }
+
+                // Remover a vírgula final
+                if (itens.length() > 0) {
+                    itens.setLength(itens.length() - 2);
+                }
+
+                // Célula de itens com quebra de linha automática
+                Cell cellItens = new Cell().add(new Paragraph(itens.toString()));
+                cellItens.setPadding(5); // Espaçamento interno
+                table.addCell(cellItens);
+            }
+
+            // Adicionando a tabela no documento
+            document.add(table);
+
+            // Fechar o documento
+            document.close();
+
+            return byteArrayOutputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar o relatório de todos os pedidos: " + e.getMessage());
+        }
+    }
     public Date convertToDate(LocalDateTime localDateTime) {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
