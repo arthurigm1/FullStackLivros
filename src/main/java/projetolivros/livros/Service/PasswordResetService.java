@@ -40,7 +40,7 @@ public class PasswordResetService {
 
         String resetLink = "http://localhost:4200/reset-password?token=" + token;
         String toAddres = email;
-        String fromAddres = "Pagiinova@gmail.com";
+        String fromAddres = "pagiionova@gmail.com";
         String senderName = "`Pagiinova`";
 
         String subject = "Cadastre uma nova senha!";

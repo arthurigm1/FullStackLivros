@@ -20,7 +20,7 @@ public class MailService {
 
     public void sendVerificationEmail(Usuario user) throws MessagingException, UnsupportedEncodingException {
         String toAddres = user.getEmail();
-        String fromAddres = "Pagiinova@gmail.com";
+        String fromAddres = "pagiionova@gmail.com";
         String senderName = "`Pagiinova`";
         String subject = "Por favor confirme seu cadastro!";
 

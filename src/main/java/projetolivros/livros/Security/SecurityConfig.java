@@ -13,11 +13,16 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -26,6 +31,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import projetolivros.livros.Service.UsuarioService;
 
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -34,7 +40,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
-
+private final TokenService tokenService;
 
     @Autowired
     SecurityFilter securityFilter;
@@ -52,21 +58,20 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/livros/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/autores/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/carrinhos/adicionar/**").authenticated()
-                        .requestMatchers(HttpMethod.GET,"/auth/verify" ).permitAll()
-                        .requestMatchers(HttpMethod.GET,"/livros/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/editoras/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/avaliacoes/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/avaliacoes/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/auth/verify").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/livros/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/editoras/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/avaliacoes/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/avaliacoes/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/livros/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/pedido/resumo").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST,"/admin/login").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/admin/usuarios").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/admin/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST,"/livros").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/livros").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"/livros").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/pedido/relatorio").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET,"/editoras/admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/pedido/resumo").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/admin/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/admin/usuarios").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/livros").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/livros").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/livros").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/editoras/admin").hasRole("ADMIN")
                         .anyRequest().authenticated()
 
                 )
